@@ -148,7 +148,7 @@ ez::Drive chassis(
  */
 void initialize() {
   // Print our branding over your terminal :D
-  ez::ez_template_print();
+  // ez::ez_template_print();
 
   // pros::delay(500);  // Stop the user from doing anything while legacy ports configure
 
@@ -231,14 +231,16 @@ void competition_initialize() {
  * from where it left off.
  */
 void autonomous() {
-  drive_example();
+  
     // ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
 
   chassis.pid_targets_reset();                // Resets PID targets to 0
   chassis.drive_imu_reset();                  // Reset gyro position to 0
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);    // Set the current position, you can start at a specific position with this
-  // chassis.drive_brake_s/set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
+  chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
+
+  drive_example();
 
   /*
   Odometry and Pure Pursuit are not magic

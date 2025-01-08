@@ -64,7 +64,7 @@ void drive_example() {
   // stop_intake_auto();
 
   chassis.pid_drive_set(24, DRIVE_SPEED);
-  // chassis.pid_wait();
+  chassis.pid_wait();
 
   // chassis.pid_drive_set(-12_in, DRIVE_SPEED);
   // chassis.pid_wait();
