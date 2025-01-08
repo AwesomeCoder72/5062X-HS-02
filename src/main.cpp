@@ -1,6 +1,9 @@
 #include "main.h"
+#include "autons.hpp"
+#include "drivecontrol.hpp"
 #include "intake.hpp"
 #include "pistoncontrol.hpp"
+#include "drivecontrol.hpp"
 
 /////
 // For installation, upgrading, documentations, and tutorials, check out our website!
@@ -24,6 +27,25 @@
 #define DRIVE_RB_PORT 15
 #define DRIVE_RT_PORT 11
 #define DRIVE_RF_PORT 12
+
+/*
+	DRIVE MOTOR INITIALIZATIONS
+*/
+
+pros::Motor drive_lb(DRIVE_LB_PORT);
+pros::Motor drive_lt(DRIVE_LT_PORT);
+pros::Motor drive_lf(DRIVE_LF_PORT);
+
+pros::Motor drive_rb(DRIVE_RB_PORT);
+pros::Motor drive_rt(DRIVE_RT_PORT);
+pros::Motor drive_rf(DRIVE_RF_PORT);
+
+/*
+	DRIVE MOTOR GROUP INITIALIZATIONS
+*/
+
+pros::MotorGroup drive_left({-DRIVE_LB_PORT, DRIVE_LT_PORT, -DRIVE_LF_PORT});
+pros::MotorGroup drive_right({DRIVE_RB_PORT, -DRIVE_RT_PORT, DRIVE_RF_PORT});
 
 /*
 	IMU PORT DEFINITIONS
@@ -128,7 +150,7 @@ void initialize() {
   // Print our branding over your terminal :D
   ez::ez_template_print();
 
-  pros::delay(500);  // Stop the user from doing anything while legacy ports configure
+  // pros::delay(500);  // Stop the user from doing anything while legacy ports configure
 
   // Look at your horizontal tracking wheel and decide if it's in front of the midline of your robot or behind it
   //  - change `back` to `front` if the tracking wheel is in front of the midline
@@ -172,7 +194,7 @@ void initialize() {
   // Initialize chassis and auton selector
   chassis.initialize();
   ez::as::initialize();
-  controller.rumble(chassis.drive_imu_calibrated() ? "." : "---");
+  controller.rumble(chassis.drive_imu_calibrated() ? "." : "...");  // Rumble the controller if the IMU is calibrated
 }
 
 /**
@@ -209,11 +231,14 @@ void competition_initialize() {
  * from where it left off.
  */
 void autonomous() {
+  drive_example();
+    // ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
+
   chassis.pid_targets_reset();                // Resets PID targets to 0
   chassis.drive_imu_reset();                  // Reset gyro position to 0
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);    // Set the current position, you can start at a specific position with this
-  chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
+  // chassis.drive_brake_s/set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
 
   /*
   Odometry and Pure Pursuit are not magic
@@ -228,7 +253,6 @@ void autonomous() {
   to be consistent
   */
 
-  ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
 }
 
 /**
@@ -344,17 +368,26 @@ void opcontrol() {
 
   while (true) {
     // Gives you some extras to make EZ-Template ezier
-    // ez_template_extras();
+    ez_template_extras();
 
-    chassis.opcontrol_tank();  // Tank control
+    // chassis.opcontrol_tank();  // Tank control
     // chassis.opcontrol_arcade_standard(ez::SPLIT);   // Standard split arcade
     // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Standard single arcade
-    chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped split arcade
+    // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped split arcade
     // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped single arcade
 
     // . . .
     // Put more user control code here!
     // . . .
+
+    split_arcade(controller.get_analog(ANALOG_LEFT_X),
+                     controller.get_analog(ANALOG_LEFT_Y), 
+                     controller.get_analog(ANALOG_RIGHT_X), 
+                     controller.get_analog(ANALOG_RIGHT_Y), 
+                     15, 
+                     15, 
+                     80, 
+                     controller.get_digital(LIMIT_DRIVE_SPEED_BUTTON));
 
     // Intake control
 
