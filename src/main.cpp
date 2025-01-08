@@ -51,7 +51,7 @@ pros::MotorGroup drive_right({DRIVE_RB_PORT, -DRIVE_RT_PORT, DRIVE_RF_PORT});
 	IMU PORT DEFINITIONS
 */
 
-#define IMU_PORT 15
+#define IMU_PORT 16
 
 /*
 	SMART SENSOR PORT DEFINTIONS
