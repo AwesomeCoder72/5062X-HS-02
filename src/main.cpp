@@ -84,6 +84,8 @@ pros::MotorGroup drive_right({DRIVE_RB_PORT, -DRIVE_RT_PORT, DRIVE_RF_PORT});
 #define INTAKE_OUTTAKE_BUTTON pros::E_CONTROLLER_DIGITAL_L2
 
 #define ACTUATE_MOGO_BUTTON pros::E_CONTROLLER_DIGITAL_R2
+#define ACTUATE_INTAKE_BUTTON pros::E_CONTROLLER_DIGITAL_RIGHT
+
 
 
 // #define UP_MATCH_LOAD_SPEED_BUTTON pros::E_CONTROLLER_DIGITAL_LEFT
@@ -121,6 +123,7 @@ pros::Optical RingOptical(RING_OPTICAL_SENSOR_PORT);
 */
 
 pros::adi::Pneumatics BackMogoActuator('a', false);
+pros::adi::Pneumatics IntakeActuator('b', true);
 
 // ez::Piston BackMogoActuator('a', false);
 
@@ -183,25 +186,26 @@ void IntakeControl() {
 
 				// ...existing code...
     screen_text = std::to_string(intake_sees_ring);
-
-    ez::screen_print(screen_text, 4);
+if (!pros::competition::is_connected()) {
+    // ez::screen_print(screen_text, 4);
 
     screen_text = std::to_string(intake_sees_ring_last);
 
-    ez::screen_print(screen_text, 5);
+    // ez::screen_print(screen_text, 5);
 
     if (intake_sees_ring != 0 && intake_sees_ring_last == 0) {
+    
 
-      color_sorting = true;
+      ez::screen_print("color sorting", 6);
+    }
+				// RingLift.move_voltage(12000);
+      stop_intake_auto();
+      // color_sort();
+
+          pros::delay(500);
       
-      // while (! color_sorting) {
-      //   RingLift.move_voltage(12000);
-      //   pros::delay(500);
-
-      //   color_sorting = false;
-			// 	// RingLift.move_voltage(12000);
-      //   // pros::delay(500);
-			// }
+        
+			} else { if (!pros::competition::is_connected()) {ez::screen_print("", 6);} }
     
 		// pros::lcd::print(2, 
 								//    "R: %d\nG: %d\nB: %d", 
@@ -216,14 +220,13 @@ void IntakeControl() {
 		pros::delay(5);
 	}
 }
-}
 
 
 void initialize() {
   // Print our branding over your terminal :D
   // ez::ez_template_print();
 
-  pros::delay(200);  // Stop the user from doing anything while legacy ports configure
+  // pros::delay(500);  // Stop the user from doing anything while legacy ports configure
 
   // Look at your horizontal tracking wheel and decide if it's in front of the midline of your robot or behind it
   //  - change `back` to `front` if the tracking wheel is in front of the midline
@@ -441,6 +444,9 @@ void ez_template_extras() {
 bool actuate_mogo_btn_pressed = false;
 bool actuate_mogo_btn_pressed_last = false;
 
+bool actuate_intake_btn_pressed = false;
+bool actuate_intake_btn_pressed_last = false;
+
 void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
@@ -486,6 +492,20 @@ void opcontrol() {
 		}
 
     actuate_mogo_btn_pressed_last = actuate_mogo_btn_pressed;
+ 
+    if (controller.get_digital(ACTUATE_INTAKE_BUTTON)) {
+				actuate_intake_btn_pressed = true;
+			} else {
+				actuate_intake_btn_pressed = false;
+		}
+
+		if (actuate_intake_btn_pressed && ! actuate_intake_btn_pressed_last) {
+		  if (!intake_actuated_value) actuate_intake(true);
+		  else actuate_intake(false);
+		}
+
+    actuate_intake_btn_pressed_last = actuate_intake_btn_pressed;
+
 
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }

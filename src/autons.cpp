@@ -65,6 +65,9 @@ void drive_example() {
 
   chassis.pid_drive_set(24, DRIVE_SPEED);
   chassis.pid_wait();
+  pros::delay(3000);
+  
+
 
   // chassis.pid_drive_set(-12_in, DRIVE_SPEED);
   // chassis.pid_wait();

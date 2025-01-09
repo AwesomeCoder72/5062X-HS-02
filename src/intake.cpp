@@ -20,6 +20,10 @@ void stop_intake_auto() {
 
 int intake_spinning = 0;
 
+void color_sort() {
+    RingLift.move_relative(100000, 100);
+}
+
 void spin_intake_driver(int intakeButtonValue, int outtakeButtonValue) {
 
   if (((intakeButtonValue == 1) && (outtakeButtonValue == 1)) || 
