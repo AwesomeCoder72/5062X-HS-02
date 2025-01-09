@@ -1,4 +1,6 @@
 #include "main.h"
+#include <string>
+#include "EZ-Template/util.hpp"
 #include "autons.hpp"
 #include "drivecontrol.hpp"
 #include "intake.hpp"
@@ -146,11 +148,82 @@ ez::Drive chassis(
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
+
+bool valueWithinRange(int value, int target, int range) {
+  return ((value > target - range) && (value < target + range));
+}
+
+void IntakeControl() {
+	float intake_sees_ring_position = 0;
+	int intake_sees_ring = 0;
+	int intake_sees_ring_last = 0;
+	float intake_begins_moving_backwards_position = 0;
+  string screen_text = "";
+  bool color_sorting = false;
+	while (true) {
+		
+			// intake_begins_moving_backwards_position = RingLift.get_position();
+
+			// if (!(intake_sees_ring_position - 500 > RingLift.get_position())) {
+			// 	RingLift.move_velocity(-400);
+			// }}
+		if (valueWithinRange(RingOptical.get_hue(), 10, 10) && RingOptical.get_proximity() > 220) {
+			intake_sees_ring = 1;
+			// controller.set_text(0, 0, "Ring Detected");
+
+    } else if (valueWithinRange(RingOptical.get_hue(), 200, 20) && RingOptical.get_proximity() > 220) {
+			intake_sees_ring = 2; 
+		} else {
+			intake_sees_ring = 0;
+			// controller.set_text(0, 0, "No Ring Detected");
+
+			spin_intake_driver(controller.get_digital(INTAKE_INTAKE_BUTTON),
+					   controller.get_digital(INTAKE_OUTTAKE_BUTTON));
+		}
+
+				// ...existing code...
+    screen_text = std::to_string(intake_sees_ring);
+
+    ez::screen_print(screen_text, 4);
+
+    screen_text = std::to_string(intake_sees_ring_last);
+
+    ez::screen_print(screen_text, 5);
+
+    if (intake_sees_ring != 0 && intake_sees_ring_last == 0) {
+
+      color_sorting = true;
+      
+      // while (! color_sorting) {
+      //   RingLift.move_voltage(12000);
+      //   pros::delay(500);
+
+      //   color_sorting = false;
+			// 	// RingLift.move_voltage(12000);
+      //   // pros::delay(500);
+			// }
+    
+		// pros::lcd::print(2, 
+								//    "R: %d\nG: %d\nB: %d", 
+								//    RingOptical.get_raw().red, 
+								//    RingOptical.get_raw().green, 
+								//    RingOptical.get_raw().blue);
+		// print hue value
+		// pros::lcd::print(1, "H: %f", pros::c::optical_get_hue(1));
+		// ...existing code...controller.set_text(0, 0, std::to_string(RingOptical.get_rgb().blue));
+		intake_sees_ring_last = intake_sees_ring;
+		// controller.clear();
+		pros::delay(5);
+	}
+}
+}
+
+
 void initialize() {
   // Print our branding over your terminal :D
   // ez::ez_template_print();
 
-  // pros::delay(500);  // Stop the user from doing anything while legacy ports configure
+  pros::delay(200);  // Stop the user from doing anything while legacy ports configure
 
   // Look at your horizontal tracking wheel and decide if it's in front of the midline of your robot or behind it
   //  - change `back` to `front` if the tracking wheel is in front of the midline
@@ -168,6 +241,8 @@ void initialize() {
 
   // Set the drive to your own constants from autons.cpp!
   default_constants();
+
+  pros::Task Task(IntakeControl);
 
   // These are already defaulted to these buttons, but you can change the left/right curve buttons here!
   // chassis.opcontrol_curve_buttons_left_set(pros::E_CONTROLLER_DIGITAL_LEFT, pros::E_CONTROLLER_DIGITAL_RIGHT);  // If using tank, only the left side is used.
@@ -194,6 +269,7 @@ void initialize() {
   // Initialize chassis and auton selector
   chassis.initialize();
   ez::as::initialize();
+  RingOptical.set_led_pwm(20);
   controller.rumble(chassis.drive_imu_calibrated() ? "." : "...");  // Rumble the controller if the IMU is calibrated
 }
 
@@ -205,6 +281,7 @@ void initialize() {
 void disabled() {
   // . . .
 }
+
 
 /**
  * Runs after initialize(), and before autonomous when connected to the Field
