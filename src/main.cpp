@@ -65,12 +65,12 @@ pros::MotorGroup drive_right({DRIVE_RB_PORT, -DRIVE_RT_PORT, DRIVE_RF_PORT});
 	DIGITAL PORT DEFINITIONS
 */
 
-#define CATA_LIMIT_SWITCH_PORT 'H'
-#define AUTON_POT_PORT 'E'
+// #define CATA_LIMIT_SWITCH_PORT 'H'
+// #define AUTON_POT_PORT 'E'
 
 // #define INTAKE_ACTUATOR_PORT 'G'
-#define RIGHT_FRONT_WING_ACTUATOR_PORT 'A'
-#define LEFT_FRONT_WING_ACTUATOR_PORT 'B'
+// #define RIGHT_FRONT_WING_ACTUATOR_PORT 'A'
+// #define LEFT_FRONT_WING_ACTUATOR_PORT 'B'
 
 
 
@@ -254,6 +254,7 @@ void initialize() {
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
       {"Drive\n\nDrive forward and come back", drive_example},
+      {"Red Positive", red_positive},
       {"Turn\n\nTurn 3 times.", turn_example},
       {"Drive and Turn\n\nDrive forward, turn, come back", drive_and_turn},
       {"Drive and Turn\n\nSlow down during drive", wait_until_change_speed},
@@ -320,7 +321,7 @@ void autonomous() {
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);    // Set the current position, you can start at a specific position with this
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
 
-  drive_example();
+  red_positive();
 
   /*
   Odometry and Pure Pursuit are not magic
@@ -470,7 +471,7 @@ void opcontrol() {
                      controller.get_analog(ANALOG_RIGHT_X), 
                      controller.get_analog(ANALOG_RIGHT_Y), 
                      15, 
-                     15, 
+                     10, 
                      80, 
                      controller.get_digital(LIMIT_DRIVE_SPEED_BUTTON));
 

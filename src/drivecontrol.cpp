@@ -29,11 +29,13 @@ void split_arcade(int leftX, int leftY, int rightX, int rightY, int leftDeadzone
             drive_right.move_voltage(scale_drive_values(ceiling_drive_values(rightY-leftX, ceiling_value, ceiling_pressed)));
             drive_left.move_voltage(scale_drive_values(ceiling_drive_values(rightY+leftX, ceiling_value, ceiling_pressed)));
         } else {
-            drive_right.move_voltage((rightY-leftX));
-            drive_left.move_voltage(rightY+leftX);
+            // drive_right.move_voltage((rightY-leftX));
+            // drive_left.move_voltage(rightY+leftX);
+            chassis.drive_set((rightY-leftX), (rightY+leftX));
         }
     } else {
-        drive_right.move_voltage(0);
-        drive_left.move_voltage(0);
+        // drive_right.move_voltage(0);
+        // drive_left.move_voltage(0);
+        chassis.drive_set(0, 0);
     }
 }

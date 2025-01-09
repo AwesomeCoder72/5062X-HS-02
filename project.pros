@@ -426,7 +426,8 @@
     "upload_options": {
       "description": "roboticsisez.com",
       "slot": 3,
-      "icon": "pizza"
+      "icon": "pizza",
+      "after": "run"
     },
     "use_early_access": false
   }

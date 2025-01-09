@@ -3,6 +3,7 @@
 void default_constants();
 
 void drive_example();
+void red_positive();
 void turn_example();
 void drive_and_turn();
 void wait_until_change_speed();
