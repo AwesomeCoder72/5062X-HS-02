@@ -222,6 +222,7 @@ if (!pros::competition::is_connected()) {
 }
 
 
+
 void initialize() {
   // Print our branding over your terminal :D
   // ez::ez_template_print();
@@ -245,7 +246,10 @@ void initialize() {
   // Set the drive to your own constants from autons.cpp!
   default_constants();
 
-  pros::Task Task(IntakeControl);
+  
+
+  
+
 
   // These are already defaulted to these buttons, but you can change the left/right curve buttons here!
   // chassis.opcontrol_curve_buttons_left_set(pros::E_CONTROLLER_DIGITAL_LEFT, pros::E_CONTROLLER_DIGITAL_RIGHT);  // If using tank, only the left side is used.
@@ -273,6 +277,7 @@ void initialize() {
   // Initialize chassis and auton selector
   chassis.initialize();
   ez::as::initialize();
+  // pros::Task IntakeControlTask(IntakeControl);
   RingOptical.set_led_pwm(20);
   controller.rumble(chassis.drive_imu_calibrated() ? "." : "...");  // Rumble the controller if the IMU is calibrated
 }
@@ -321,7 +326,9 @@ void autonomous() {
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);    // Set the current position, you can start at a specific position with this
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
 
-  red_positive();
+  // IntakeControlTask.delay(15500);
+  // blue_positive();
+  skillz();
 
   /*
   Odometry and Pure Pursuit are not magic
@@ -451,6 +458,7 @@ bool actuate_intake_btn_pressed_last = false;
 void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
+  
 
   while (true) {
     // Gives you some extras to make EZ-Template ezier
