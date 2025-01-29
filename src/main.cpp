@@ -4,8 +4,12 @@
 #include "autons.hpp"
 #include "drivecontrol.hpp"
 #include "intake.hpp"
+#include "ladybrown.hpp"
 #include "pistoncontrol.hpp"
 #include "drivecontrol.hpp"
+#include "pros/colors.hpp"
+#include "pros/motors.hpp"
+#include "pros/rotation.hpp"
 
 /////
 // For installation, upgrading, documentations, and tutorials, check out our website!
@@ -19,20 +23,41 @@
 	MOTOR PORT DEFINITIONS
 */
 
-#define RING_LIFT_MOTOR_PORT 20
-#define INTAKE_MOTOR_PORT 4
+#define RING_LIFT_MOTOR_PORT 15
+#define INTAKE_MOTOR_PORT 20
+
+#define LADY_BROWN_MOTOR_PORT 13
+
+#define LADY_BROWN_ROTATION_SENSOR_PORT 11
 
 #define DRIVE_LB_PORT 17
-#define DRIVE_LT_PORT 19
-#define DRIVE_LF_PORT 18
+#define DRIVE_LT_PORT 7
+#define DRIVE_LF_PORT 6
 
-#define DRIVE_RB_PORT 15
-#define DRIVE_RT_PORT 11
-#define DRIVE_RF_PORT 12
+#define DRIVE_RB_PORT 9 // out sometimes
+#define DRIVE_RT_PORT 5 // questionable
+#define DRIVE_RF_PORT 14
+
+
+
+// #define RING_LIFT_MOTOR_PORT 20 
+// #define INTAKE_MOTOR_PORT 4
+
+// #define DRIVE_LB_PORT 17
+// #define DRIVE_LT_PORT 19
+// #define DRIVE_LF_PORT 18
+
+// #define DRIVE_RB_PORT 15
+// #define DRIVE_RT_PORT 11
+// #define DRIVE_RF_PORT 12
 
 /*
 	DRIVE MOTOR INITIALIZATIONS
 */
+
+pros::Rotation LadyBrownRotationSensor(LADY_BROWN_ROTATION_SENSOR_PORT);
+
+pros::Motor LadyBrownMech(-LADY_BROWN_MOTOR_PORT);
 
 pros::Motor drive_lb(DRIVE_LB_PORT);
 pros::Motor drive_lt(DRIVE_LT_PORT);
@@ -48,6 +73,7 @@ pros::Motor drive_rf(DRIVE_RF_PORT);
 
 pros::MotorGroup drive_left({-DRIVE_LB_PORT, DRIVE_LT_PORT, -DRIVE_LF_PORT});
 pros::MotorGroup drive_right({DRIVE_RB_PORT, -DRIVE_RT_PORT, DRIVE_RF_PORT});
+
 
 /*
 	IMU PORT DEFINITIONS
@@ -82,6 +108,10 @@ pros::MotorGroup drive_right({DRIVE_RB_PORT, -DRIVE_RT_PORT, DRIVE_RF_PORT});
 
 #define INTAKE_INTAKE_BUTTON pros::E_CONTROLLER_DIGITAL_L1
 #define INTAKE_OUTTAKE_BUTTON pros::E_CONTROLLER_DIGITAL_L2
+
+#define LADY_BROWN_UP_BUTTON pros::E_CONTROLLER_DIGITAL_RIGHT
+#define LADY_BROWN_DOWN_BUTTON pros::E_CONTROLLER_DIGITAL_DOWN
+#define LADY_BROWN_NEXT_BUTTON pros::E_CONTROLLER_DIGITAL_R1
 
 #define ACTUATE_MOGO_BUTTON pros::E_CONTROLLER_DIGITAL_R2
 #define ACTUATE_INTAKE_BUTTON pros::E_CONTROLLER_DIGITAL_RIGHT
@@ -122,8 +152,8 @@ pros::Optical RingOptical(RING_OPTICAL_SENSOR_PORT);
 	PISTON INITIALIZATIONS
 */
 
-pros::adi::Pneumatics BackMogoActuator('a', false);
-pros::adi::Pneumatics IntakeActuator('b', true);
+pros::adi::Pneumatics BackMogoActuator('b', false);
+pros::adi::Pneumatics IntakeActuator('c', true);
 
 // ez::Piston BackMogoActuator('a', false);
 
@@ -134,7 +164,7 @@ ez::Drive chassis(
     {DRIVE_RF_PORT, -DRIVE_RT_PORT, DRIVE_RB_PORT},  // Right Chassis Ports (negative port will reverse it!)
 
     IMU_PORT,      // IMU Port
-    3.25,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
+    3.3,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
     450);   // Wheel RPM = cartridge * (motor gear / wheel gear)
 
 // Uncomment the trackers you're using here!
@@ -212,7 +242,7 @@ if (!pros::competition::is_connected()) {
 								//    RingOptical.get_raw().red, 
 								//    RingOptical.get_raw().green, 
 								//    RingOptical.get_raw().blue);
-		// print hue value
+		// hue value
 		// pros::lcd::print(1, "H: %f", pros::c::optical_get_hue(1));
 		// ...existing code...controller.set_text(0, 0, std::to_string(RingOptical.get_rgb().blue));
 		intake_sees_ring_last = intake_sees_ring;
@@ -221,7 +251,34 @@ if (!pros::competition::is_connected()) {
 	}
 }
 
+const int numStates = 4;
+//make sure these are in centidegrees (1 degree = 100 centidegrees)
+int states[numStates] = {14250, 16220, 23000, 27750};
+int currState = 0;
+int target = states[0];
 
+void nextState() {
+    currState += 1;
+    if (currState == numStates) {
+        currState = 0;
+    }
+    target = states[currState];
+}
+
+double last_error = 0;
+
+void liftControl() {
+    double kP = 0.025;
+    double kD = 0.0; 
+    double error = target - LadyBrownRotationSensor.get_position();
+    double derivative = (error-last_error);
+    double velocity = kP * error + kD * derivative;
+    last_error = error;
+    // if (LadyBrownRotationSensor.get_position() > states[numStates] + 50){
+
+    // }
+    LadyBrownMech.move(velocity);
+}
 
 void initialize() {
   // Print our branding over your terminal :D
@@ -258,7 +315,10 @@ void initialize() {
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
       {"Drive\n\nDrive forward and come back", drive_example},
+      {"Blue Positive", blue_positive},
       {"Red Positive", red_positive},
+      {"SKILLZ", skillz},
+      
       {"Turn\n\nTurn 3 times.", turn_example},
       {"Drive and Turn\n\nDrive forward, turn, come back", drive_and_turn},
       {"Drive and Turn\n\nSlow down during drive", wait_until_change_speed},
@@ -275,11 +335,16 @@ void initialize() {
   });
 
   // Initialize chassis and auton selector
+  pros::delay(100);
   chassis.initialize();
   ez::as::initialize();
   // pros::Task IntakeControlTask(IntakeControl);
   RingOptical.set_led_pwm(20);
+
+  
+
   controller.rumble(chassis.drive_imu_calibrated() ? "." : "...");  // Rumble the controller if the IMU is calibrated
+
 }
 
 /**
@@ -318,7 +383,7 @@ void competition_initialize() {
  */
 void autonomous() {
   
-    // ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
+      // Calls selected auton from autonomous selector
 
   chassis.pid_targets_reset();                // Resets PID targets to 0
   chassis.drive_imu_reset();                  // Reset gyro position to 0
@@ -326,10 +391,10 @@ void autonomous() {
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);    // Set the current position, you can start at a specific position with this
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
 
+  ez::as::auton_selector.selected_auton_call();
+
   // IntakeControlTask.delay(15500);
   // blue_positive();
-  skillz();
-
   /*
   Odometry and Pure Pursuit are not magic
 
@@ -458,7 +523,17 @@ bool actuate_intake_btn_pressed_last = false;
 void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
-  
+  LadyBrownMech.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+
+  pros::Task liftControlTask([]{
+        while (true) {
+            liftControl();
+            ez::screen_print(std::to_string(LadyBrownRotationSensor.get_position()), 1);
+            pros::delay(10);
+            ez::screen_print("", 1);
+        }
+    });
+
 
   while (true) {
     // Gives you some extras to make EZ-Template ezier
@@ -487,6 +562,8 @@ void opcontrol() {
 
     spin_intake_driver(controller.get_digital(INTAKE_INTAKE_BUTTON), controller.get_digital(INTAKE_OUTTAKE_BUTTON));
 
+    spin_lady_brown_driver(controller.get_digital(LADY_BROWN_UP_BUTTON), controller.get_digital(LADY_BROWN_DOWN_BUTTON));
+
     // Mogo actuator control
 
     if (controller.get_digital(ACTUATE_MOGO_BUTTON)) {
@@ -514,6 +591,10 @@ void opcontrol() {
 		}
 
     actuate_intake_btn_pressed_last = actuate_intake_btn_pressed;
+
+    if (controller.get_digital_new_press(LADY_BROWN_NEXT_BUTTON)) {
+      nextState();
+    }
 
 
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME

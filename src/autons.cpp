@@ -20,7 +20,8 @@ const int SWING_SPEED = 110;
 ///
 void default_constants() {
   // P, I, D, and Start I
-  chassis.pid_drive_constants_set(20.0, 0.0, 300.0);         // Fwd/rev constants, used for odom and non odom motions
+  chassis.pid_drive_constants_set(10.0, 0.0, 20.0)
+  ;         // Fwd/rev constants, used for odom and non odom motions
   chassis.pid_heading_constants_set(11.0, 0.0, 20.0);        // Holds the robot straight while going forward without odom
   chassis.pid_turn_constants_set(3.0, 0.05, 25.0, 15.0);     // Turn in place constants
   chassis.pid_swing_constants_set(6.0, 0.0, 65.0);           // Swing constants
@@ -67,46 +68,61 @@ void drive_example() {
   // pros::delay(3000);
   // stop_intake_auto();
 
-  chassis.pid_turn_set(90_deg, TURN_SPEED);
-  chassis.pid_wait();
-
-  chassis.pid_turn_set(180_deg, TURN_SPEED);
-  chassis.pid_wait();
-
-  // chassis.pid_drive_set(24, DRIVE_SPEED, true);
+  // chassis.pid_turn_set(90_deg, TURN_SPEED);
   // chassis.pid_wait();
-  // pros::delay(3000);
+
+  // chassis.pid_turn_set(180_deg, TURN_SPEED);
+  // chassis.pid_wait();
+
+  chassis.pid_drive_set(24, DRIVE_SPEED, true);
+  chassis.pid_wait();
+  pros::delay(3000);
   
 
 
-  // chassis.pid_drive_set(-12_in, DRIVE_SPEED);
-  // chassis.pid_wait();
+  chassis.pid_drive_set(-12_in, DRIVE_SPEED);
+  chassis.pid_wait();
+
+  chassis.drive_set(0, 0);
 
   // chassis.pid_drive_set(-12_in, DRIVE_SPEED);
   // chassis.pid_wait();
 }
 
 void red_positive() {
+
+  // THE FIRST ONE IS LEFT, SECOND IS RIGHT
+  
   stop_intake_auto();
-  if (chassis.odom_x_direction_get() == false) {
-    chassis.pid_drive_set(14_in, 50, true);
+  if (chassis.odom_theta_direction_get()) {
+    chassis.pid_drive_set(18_in, 50, true);
+    chassis.pid_wait_until(4);
+
   } else {
-    chassis.pid_drive_set(11_in, 50, true);
+    chassis.pid_drive_set(18_in, 50, true);
+    // chassis.pid_wait_until(14);
+    chassis.pid_wait_until(7);
+
   }
-  chassis.pid_wait_until(4);
 
   spin_intake_auto(true, 600);
 
   actuate_intake(false);
 
-  pros::delay(500);
+  pros::delay(750);
 
   actuate_intake(true);
 
-  if (chassis.odom_x_direction_get() == false) {
-    chassis.pid_turn_set(74, 70);
+  if (chassis.odom_theta_direction_get()) {
+    chassis.pid_drive_set(-4_in, 70, true);
+    stop_intake_auto();
+    chassis.pid_wait();
+    chassis.pid_turn_set(75, 70);
   } else {
-    chassis.pid_turn_set(65, 70);
+    chassis.pid_drive_set(-2_in, 70, true);
+    stop_intake_auto();
+    chassis.pid_wait();
+    chassis.pid_turn_set(75, 70);
   }
   chassis.pid_wait_until(50);
 
@@ -114,11 +130,11 @@ void red_positive() {
 
   chassis.pid_wait();
   
-  if (chassis.odom_x_direction_get() == false) {
-    chassis.pid_drive_set(-10.5_in, 90, true);
+  if (chassis.odom_theta_direction_get()) {
+    chassis.pid_drive_set(-10_in, 80, true);
     chassis.pid_wait_until(-10);  
   } else {
-    chassis.pid_drive_set(-10.1_in, 90, true);
+    chassis.pid_drive_set(-10.5_in, 90, true);
     chassis.pid_wait_until(-2);  
   }
   
@@ -133,22 +149,22 @@ void red_positive() {
   chassis.pid_drive_set(5_in, 90, true);
   chassis.pid_wait();
 
-  if (chassis.odom_x_direction_get() == false) {
-      chassis.pid_turn_set(-75, TURN_SPEED);
+  if (chassis.odom_theta_direction_get()) {
+      chassis.pid_turn_set(-80, TURN_SPEED);
  
   } else {
-      chassis.pid_turn_set(-90, TURN_SPEED);
+      chassis.pid_turn_set(-79, TURN_SPEED);
  
   }
 
   chassis.pid_wait();
 
-  if (chassis.odom_x_direction_get() == false) {
-    chassis.pid_drive_set(-38_in, 100, true);
-    chassis.pid_wait_until(-28);
+  if (chassis.odom_theta_direction_get()) {
+    chassis.pid_drive_set(-38_in, 65, true);
+    chassis.pid_wait_until(-32);
   } else {
-    chassis.pid_drive_set(-30_in, 100, true);
-    chassis.pid_wait_until(-26);
+    chassis.pid_drive_set(-36_in, 90, true);
+    chassis.pid_wait_until(-32);
   }
 
   actuate_back_mogo(true);
@@ -156,7 +172,7 @@ void red_positive() {
 
   chassis.pid_wait_quick();
 
-  chassis.pid_turn_set(142, TURN_SPEED);
+  chassis.pid_turn_set(155, TURN_SPEED);
   chassis.pid_wait();
 
   chassis.pid_drive_set(18_in, DRIVE_SPEED, true);
@@ -169,14 +185,14 @@ void red_positive() {
 
   pros::delay(200);
 
-  if (chassis.odom_x_direction_get() == false) {
-    chassis.pid_drive_set(-26_in, DRIVE_SPEED, true);
+  if (chassis.odom_theta_direction_get()) {
+    chassis.pid_drive_set(-31_in, DRIVE_SPEED, true);
   } else {
-    chassis.pid_drive_set(-20_in, DRIVE_SPEED, true);
+    chassis.pid_drive_set(-26_in, DRIVE_SPEED, true);
   }
   chassis.pid_wait();
 
-  chassis.pid_turn_set(240, TURN_SPEED);
+  chassis.pid_turn_set(220, TURN_SPEED);
   chassis.pid_wait();
 
   stop_intake_auto();
@@ -188,24 +204,30 @@ void red_positive() {
   chassis.pid_drive_set(11_in, 60, true);
   chassis.pid_wait();
 
-  chassis.pid_drive_set(-28_in, DRIVE_SPEED, true);
+  chassis.pid_drive_set(-24_in, DRIVE_SPEED, true);
   chassis.pid_wait();
 
   stop_intake_auto();
   spin_intake_auto(true, 600);
 
-  chassis.pid_turn_set(10, TURN_SPEED);
+  if (chassis.odom_theta_direction_get()) {
+    chassis.pid_turn_set(100, TURN_SPEED);
+  } else {
+    chassis.pid_turn_set(170, TURN_SPEED);
+  }
   chassis.pid_wait();  
 
-  if (chassis.odom_x_direction_get() == false) {
-  chassis.pid_drive_set(11_in, 100, true);
-  } else {
-  chassis.pid_drive_set(15_in, 100, true);
+  // if (chassis.odom_theta_direction_get()) {
+  // chassis.pid_drive_set(14_in, 100, true);
+  // } else {
+  // chassis.pid_drive_set(16_in, 100, true);
 
-  }
-  chassis.pid_wait();
+  // }
+  // chassis.pid_wait();
 
   chassis.drive_set(0, 0);
+
+  pros::delay(10000);
 
   stop_intake_auto();
 
@@ -233,59 +255,93 @@ void skillz() {
   chassis.pid_turn_set(-90, TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_drive_set(-28_in, DRIVE_SPEED, true);
-  chassis.pid_wait_until(-24);
+  chassis.pid_drive_set(-20_in, DRIVE_SPEED, true);
+  chassis.pid_wait_quick_chain();
 
   actuate_back_mogo(true);
+
+  stop_intake_auto();
+  spin_intake_auto(true, 600);
+
+  chassis.pid_drive_set(-8_in, 60, true);
+  chassis.pid_wait(); 
 
   pros::delay(200);
 
   chassis.pid_turn_set(-10, TURN_SPEED);
   chassis.pid_wait();  
 
+  stop_intake_auto();
   spin_intake_auto(true, 600);
 
   chassis.pid_drive_set(26_in, DRIVE_SPEED, true);
   chassis.pid_wait();
 
-  chassis.pid_turn_set(50, TURN_SPEED);
+  pros::delay(200);
+
+  chassis.pid_turn_set(55, TURN_SPEED);
   chassis.pid_wait();
+
+  stop_intake_auto();
+  spin_intake_auto(true, 600);
 
   chassis.pid_drive_set(40_in, DRIVE_SPEED, true);
   chassis.pid_wait();
 
-  chassis.pid_turn_set(194, TURN_SPEED);
+  pros::delay(200);
+
+  chassis.pid_drive_set(-2_in, DRIVE_SPEED, true);
   chassis.pid_wait();
 
-  chassis.pid_drive_set(28_in, DRIVE_SPEED, true);
+  chassis.pid_turn_set(200, TURN_SPEED);
   chassis.pid_wait();
+
+  chassis.pid_drive_set(22_in, 90, true);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(6_in, 60, true);
+  chassis.pid_wait();
+
+  pros::delay(750);
 
   chassis.pid_turn_set(180, TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_drive_set(32_in, DRIVE_SPEED, true);
+  chassis.pid_drive_set(22_in, 85, true);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(6_in, 60, true);
   chassis.pid_wait();
 
-  pros::delay(300);
+  pros::delay(400);
 
-  chassis.pid_drive_set(-6_in, DRIVE_SPEED, true);
+  chassis.pid_drive_set(4_in, 60, true);
   chassis.pid_wait();
 
-  chassis.pid_turn_set(50, TURN_SPEED);
+
+  pros::delay(1000);
+
+  chassis.pid_drive_set(-4_in, DRIVE_SPEED, true);
   chassis.pid_wait();
+
+  chassis.pid_turn_set(70, TURN_SPEED);
+  chassis.pid_wait();
+
+  stop_intake_auto();
+  spin_intake_auto(true, 600);
 
   chassis.pid_drive_set(10_in, DRIVE_SPEED, true);
   chassis.pid_wait();
 
-  chassis.pid_turn_set(-20, TURN_SPEED);
+  chassis.pid_turn_set(-25, TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_drive_set(-6_in, DRIVE_SPEED, true);
+  pros::delay(1000);
+
+  chassis.pid_drive_set(-8_in, DRIVE_SPEED, true);
   chassis.pid_wait_until(-2);
   actuate_back_mogo(false);
   chassis.pid_wait();  
 
-
+  stop_intake_auto();
 
 }
 
