@@ -3,13 +3,21 @@
 
 
 
-void spin_intake_auto(bool intaking, int velocity) {
+void spin_intake_auto(bool intaking, int velocity, bool just_first_stage) {
   if (intaking) {
-    Intake.move_relative(100000, velocity);
-    RingLift.move_relative(100000, velocity);
+    if (!just_first_stage) {
+      Intake.move_relative(100000, velocity);
+      RingLift.move_relative(100000, velocity);
+    } else {
+      Intake.move_relative(100000, velocity);
+    }
   } else if (!intaking) {
-    Intake.move_relative(-100000, velocity);
-    RingLift.move_relative(-100000, velocity);
+    if (!just_first_stage) {
+      Intake.move_relative(-100000, velocity);
+      RingLift.move_relative(-100000, velocity);
+    } else {
+      Intake.move_relative(-100000, velocity);
+    }
   }
 }
 
@@ -38,3 +46,4 @@ void spin_intake_driver(int intakeButtonValue, int outtakeButtonValue) {
         RingLift.move_voltage(-12000);
       }
 }
+

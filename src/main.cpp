@@ -79,7 +79,7 @@ pros::MotorGroup drive_right({DRIVE_RB_PORT, -DRIVE_RT_PORT, DRIVE_RF_PORT});
 	IMU PORT DEFINITIONS
 */
 
-#define IMU_PORT 16
+#define IMU_PORT 12
 
 /*
 	SMART SENSOR PORT DEFINTIONS
@@ -253,7 +253,7 @@ if (!pros::competition::is_connected()) {
 
 const int numStates = 4;
 //make sure these are in centidegrees (1 degree = 100 centidegrees)
-int states[numStates] = {14250, 16220, 23000, 27750};
+int states[numStates] = {14250, 17140, 23000, 27750};
 int currState = 0;
 int target = states[0];
 
@@ -267,18 +267,7 @@ void nextState() {
 
 double last_error = 0;
 
-void liftControl() {
-    double kP = 0.025;
-    double kD = 0.0; 
-    double error = target - LadyBrownRotationSensor.get_position();
-    double derivative = (error-last_error);
-    double velocity = kP * error + kD * derivative;
-    last_error = error;
-    // if (LadyBrownRotationSensor.get_position() > states[numStates] + 50){
 
-    // }
-    LadyBrownMech.move(velocity);
-}
 
 void initialize() {
   // Print our branding over your terminal :D
@@ -314,11 +303,12 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-      {"Drive\n\nDrive forward and come back", drive_example},
+      {"full awp sig", full_awp_sig},  
+      {"drive example", drive_example},
+      {"skills sig", skills_sig},
       {"Blue Positive", blue_positive},
       {"Red Positive", red_positive},
       {"SKILLZ", skillz},
-      
       {"Turn\n\nTurn 3 times.", turn_example},
       {"Drive and Turn\n\nDrive forward, turn, come back", drive_and_turn},
       {"Drive and Turn\n\nSlow down during drive", wait_until_change_speed},
@@ -520,6 +510,19 @@ bool actuate_mogo_btn_pressed_last = false;
 bool actuate_intake_btn_pressed = false;
 bool actuate_intake_btn_pressed_last = false;
 
+void liftControl() {
+    double kP = 0.025;
+    double kD = 0.0; 
+    double error = target - LadyBrownRotationSensor.get_position();
+    double derivative = (error-last_error);
+    double velocity = kP * error + kD * derivative;
+    last_error = error;
+    // if (LadyBrownRotationSensor.get_position() > states[numStates] + 50){
+
+    // }
+    LadyBrownMech.move(velocity);
+}
+
 void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
@@ -589,6 +592,7 @@ void opcontrol() {
 		  if (!intake_actuated_value) actuate_intake(true);
 		  else actuate_intake(false);
 		}
+
 
     actuate_intake_btn_pressed_last = actuate_intake_btn_pressed;
 

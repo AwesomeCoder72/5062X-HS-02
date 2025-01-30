@@ -2,6 +2,8 @@
 
 void default_constants();
 
+void skills_sig();
+void full_awp_sig();
 void drive_example();
 void red_positive();
 void blue_positive();
