@@ -32,7 +32,7 @@ void default_constants() {
   // Exit conditions
   chassis.pid_turn_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 500_ms);
   chassis.pid_swing_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 500_ms);
-  chassis.pid_drive_exit_condition_set(70_ms, 1.5_in, 200_ms, 3.5_in, 500_ms, 500_ms);
+  chassis.pid_drive_exit_condition_set(50_ms, 1.5_in, 175_ms, 3.5_in, 500_ms, 500_ms);
   chassis.pid_odom_turn_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 750_ms);
   chassis.pid_odom_drive_exit_condition_set(90_ms, 1_in, 250_ms, 3_in, 500_ms, 750_ms);
   chassis.pid_turn_chain_constant_set(3_deg);
@@ -248,7 +248,11 @@ void full_awp_sig() {
   Intake.move_relative(100000, 600);
   RingLift.move_relative(100000, 400);
 
-  chassis.pid_wait_until(11);
+  chassis.pid_wait_until(7);
+
+  actuate_intake(false);
+
+  pros::delay(475);
 
   stop_intake_auto();
 
@@ -291,10 +295,10 @@ void full_awp_sig() {
   chassis.pid_turn_set(147.5,TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_drive_set(-22,DRIVE_SPEED, true);
-  
-  chassis.pid_wait_until(-14);
+  chassis.pid_drive_set(-20,DRIVE_SPEED, true);
+  chassis.pid_wait_quick_chain();
   actuate_back_mogo(true);
+  chassis.pid_drive_set(-2, DRIVE_SPEED);
 
   chassis.pid_wait();
 
@@ -303,7 +307,6 @@ void full_awp_sig() {
 
   spin_intake_auto(true, 600);
   chassis.pid_drive_set(10,DRIVE_SPEED, true);
-  chassis.pid_wait_quick_chain(); 
   chassis.pid_drive_set(3,50);
 
   chassis.pid_wait();
