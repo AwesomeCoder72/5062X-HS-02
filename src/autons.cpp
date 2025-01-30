@@ -23,7 +23,7 @@ void default_constants() {
   // P, I, D, and Start I
   chassis.pid_drive_constants_set(10.7, 0.0, 15.7)
   ;         // Fwd/rev constants, used for odom and non odom motions
-  chassis.pid_heading_constants_set(12.5, 0.0, 17.5);        // Holds the robot straight while going forward without odom
+  chassis.pid_heading_constants_set(12.0, 0.0, 17.5);        // Holds the robot straight while going forward without odom
   chassis.pid_turn_constants_set(3.0, 0.05, 25.0, 15.0);     // Turn in place constants
   chassis.pid_swing_constants_set(6.0, 0.0, 65.0);           // Swing constants
   chassis.pid_odom_angular_constants_set(6.5, 0.0, 52.5);    // Angular control for odom motions
@@ -248,7 +248,7 @@ void full_awp_sig() {
   Intake.move_relative(100000, 600);
   RingLift.move_relative(100000, 400);
 
-  chassis.pid_wait_until(9);
+  chassis.pid_wait_until(11);
 
   stop_intake_auto();
 
@@ -291,7 +291,7 @@ void full_awp_sig() {
   chassis.pid_turn_set(147.5,TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_drive_set(-22_in,DRIVE_SPEED, true);
+  chassis.pid_drive_set(-22,DRIVE_SPEED, true);
   
   chassis.pid_wait_until(-14);
   actuate_back_mogo(true);
