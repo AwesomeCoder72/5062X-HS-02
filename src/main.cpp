@@ -34,7 +34,7 @@
 #define DRIVE_LT_PORT 7
 #define DRIVE_LF_PORT 6
 
-#define DRIVE_RB_PORT 9 // out sometimes
+#define DRIVE_RB_PORT 19 // out sometimes
 #define DRIVE_RT_PORT 5 // questionable
 #define DRIVE_RF_PORT 14
 
@@ -158,14 +158,23 @@ pros::adi::Pneumatics IntakeActuator('c', true);
 // ez::Piston BackMogoActuator('a', false);
 
 // Chassis constructor
+// ez::Drive chassis(
+//     // These are your drive motors, the first motor is used for sensing!
+//     {-DRIVE_LF_PORT, DRIVE_LT_PORT, -DRIVE_LB_PORT},     // Left Chassis Ports (negative port will reverse it!)
+//     {DRIVE_RF_PORT, -DRIVE_RT_PORT, DRIVE_RB_PORT},  // Right Chassis Ports (negative port will reverse it!)
+
+//     IMU_PORT,      // IMU Port
+//     3.3,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
+//     450);   // Wheel RPM = cartridge * (motor gear / wheel gear)
+
 ez::Drive chassis(
     // These are your drive motors, the first motor is used for sensing!
     {-DRIVE_LF_PORT, DRIVE_LT_PORT, -DRIVE_LB_PORT},     // Left Chassis Ports (negative port will reverse it!)
     {DRIVE_RF_PORT, -DRIVE_RT_PORT, DRIVE_RB_PORT},  // Right Chassis Ports (negative port will reverse it!)
 
     IMU_PORT,      // IMU Port
-    3.3,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
-    450);   // Wheel RPM = cartridge * (motor gear / wheel gear)
+    6.5,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
+    450);
 
 // Uncomment the trackers you're using here!
 // - `8` and `9` are smart ports (making these negative will reverse the sensor)
@@ -303,9 +312,14 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-      {"full awp sig", full_awp_sig},  
-      {"drive example", drive_example},
+    
+    {"XENOFOX", drive_example}, {"GYATTTTT", elim_auto_2},
+    
+    {"drive and score", drive_and_score},
+    {"full awp sig", full_awp_sig},
+    
       {"skills sig", skills_sig},
+
       {"Blue Positive", blue_positive},
       {"Red Positive", red_positive},
       {"SKILLZ", skillz},
@@ -527,11 +541,12 @@ void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
   LadyBrownMech.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+  chassis.drive_set(0, 0);
 
   pros::Task liftControlTask([]{
         while (true) {
             liftControl();
-            ez::screen_print(std::to_string(LadyBrownRotationSensor.get_position()), 1);
+            // ez::screen_print(std::to_string(LadyBrownRotationSensor.get_position()), 1);
             pros::delay(10);
             ez::screen_print("", 1);
         }

@@ -11,9 +11,9 @@ void actuate_back_mogo(bool out_value) {
 
 bool intake_actuated_value = false;
 
-void actuate_intake(bool out_value) {
-  IntakeActuator.set_value(out_value);
-  intake_actuated_value = out_value;
+void actuate_intake(bool up_value) {
+  IntakeActuator.set_value(up_value);
+  intake_actuated_value = up_value;
 }
 
 bool actuate_piston(bool out_value, pros::adi::Pneumatics piston) {

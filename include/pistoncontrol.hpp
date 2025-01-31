@@ -11,4 +11,4 @@ extern bool back_mogo_actuated_value;
 extern bool intake_actuated_value;
 
 void actuate_back_mogo(bool out_value);
-void actuate_intake(bool out_value);
+void actuate_intake(bool up_value);

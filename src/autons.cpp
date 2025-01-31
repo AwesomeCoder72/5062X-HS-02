@@ -1,8 +1,10 @@
 #include "EZ-Template/drive/drive.hpp"
 #include "intake.hpp"
+#include "ladybrown.hpp"
 #include "main.h"
 #include "intake.hpp"
 #include "pistoncontrol.hpp"
+#include "pros/abstract_motor.hpp"
 #include "pros/rtos.hpp"
 #include "subsystems.hpp"
 
@@ -20,19 +22,39 @@ const int SWING_SPEED = 110;
 // Constants
 ///
 void default_constants() {
-  // P, I, D, and Start I
-  chassis.pid_drive_constants_set(10.7, 0.0, 15.7)
-  ;         // Fwd/rev constants, used for odom and non odom motions
-  chassis.pid_heading_constants_set(12.0, 0.0, 17.5);        // Holds the robot straight while going forward without odom
-  chassis.pid_turn_constants_set(3.0, 0.05, 25.0, 15.0);     // Turn in place constants
+
+  chassis.pid_drive_constants_set(19.0, 0.0, 90.0);         // Fwd/rev constants, used for odom and non odom motions
+  chassis.pid_heading_constants_set(2.0, 0.0, 15.0);        // Holds the robot straight while going forward without odom
+
+  // chassis.pid_drive_constants_set(19.0, 0.0, 90.0);         // Fwd/rev constants, used for odom and non odom motions
+  // chassis.pid_heading_constants_set(5.0, 0.0, 10.0);        // Holds the robot straight while going forward without odom
+  chassis.pid_turn_constants_set(3.0, 0.05, 20.0, 15.0);     // Turn in place constants
   chassis.pid_swing_constants_set(6.0, 0.0, 65.0);           // Swing constants
   chassis.pid_odom_angular_constants_set(6.5, 0.0, 52.5);    // Angular control for odom motions
-  chassis.pid_odom_boomerang_constants_set(5.8, 0.0, 32.5);  // Angular control for boomerang motions
+  chassis.pid_odom_boomerang_constants_set(5.8, 0.0, 32.5); 
+
+  // P, I, D, and Start I
+  // chassis.pid_drive_constants_set(10.7, 0.0, 15.7)
+  // ;         // Fwd/rev constants, used for odom and non odom motions
+  // chassis.pid_heading_constants_set(12.0, 0.0, 17.5);        // Holds the robot straight while going forward without odom
+  // chassis.pid_turn_constants_set(3.0, 0.05, 25.0, 15.0);     // Turn in place constants
+  // chassis.pid_swing_constants_set(6.0, 0.0, 65.0);           // Swing constants
+  // chassis.pid_odom_angular_constants_set(6.5, 0.0, 52.5);    // Angular control for odom motions
+  // chassis.pid_odom_boomerang_constants_set(5.8, 0.0, 32.5);  // Angular control for boomerang motions
+
+  chassis.pid_turn_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 500_ms);
+  chassis.pid_swing_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 500_ms);
+  chassis.pid_drive_exit_condition_set(90_ms, 1_in, 250_ms, 3_in, 500_ms, 500_ms);
+  chassis.pid_odom_turn_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 750_ms);
+  chassis.pid_odom_drive_exit_condition_set(90_ms, 1_in, 250_ms, 3_in, 500_ms, 750_ms);
+  chassis.pid_turn_chain_constant_set(3_deg);
+  chassis.pid_swing_chain_constant_set(5_deg);
+  chassis.pid_drive_chain_constant_set(3_in);
 
   // Exit conditions
   chassis.pid_turn_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 500_ms);
   chassis.pid_swing_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 500_ms);
-  chassis.pid_drive_exit_condition_set(50_ms, 1.5_in, 175_ms, 3.5_in, 500_ms, 500_ms);
+  chassis.pid_drive_exit_condition_set(70_ms, 1.5_in, 200_ms, 3.5_in, 500_ms, 500_ms);
   chassis.pid_odom_turn_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 750_ms);
   chassis.pid_odom_drive_exit_condition_set(90_ms, 1_in, 250_ms, 3_in, 500_ms, 750_ms);
   chassis.pid_turn_chain_constant_set(3_deg);
@@ -77,26 +99,85 @@ void drive_example() {
   // chassis.pid_turn_set(180_deg, TURN_SPEED);
   // chassis.pid_wait();
 
-  chassis.pid_drive_set(24, DRIVE_SPEED, true);
+  // pros::delay(13500);
+
+  
+  // chassis.pid_turn_set(90, TURN_SPEED);
+
+  chassis.pid_drive_set(-24, DRIVE_SPEED, true, false);
+  // pros::delay(400);
   chassis.pid_wait();
-  pros::delay(3000);
+  chassis.drive_set(0, 0);
+  // pros::delay(3000);
   
 
 
-  chassis.pid_drive_set(-12_in, DRIVE_SPEED);
-  chassis.pid_wait();
+  // chassis.pid_drive_set(-12_in, DRIVE_SPEED);
+  // chassis.pid_wait();
 
-  chassis.drive_set(0, 0);
+  // chassis.drive_set(0, 0);
 
   // chassis.pid_drive_set(-12_in, DRIVE_SPEED);
   // chassis.pid_wait();
+}
+
+void elim_auto_2() {
+  chassis.odom_theta_set(62.5);
+
+  chassis.pid_drive_set(18_in, 85, true);
+  chassis.pid_wait_until(2);
+
+  // actuate_intake(false);
+
+  Intake.move_relative(100000, 600);
+  RingLift.move_relative(100000, 400);
+
+  pros::delay(650);
+
+  // chassis.pid_wait_until(11);
+
+  actuate_intake(false);
+
+  stop_intake_auto();
+
+  chassis.pid_wait();
+
+  // chassis.pid_drive_set(-3_in, DRIVE_SPEED);
+  // chassis.pid_wait();
+
+  // stop_intake_auto();
+  // spin_intake_auto(true, 600, true);
+
+  // pros::delay(1000);
+
+  chassis.pid_turn_set(0, TURN_SPEED);
+  
+  chassis.pid_wait();
+
+  // drive to alliance stake
+  chassis.pid_drive_set(-6, DRIVE_SPEED, true);
+
+  chassis.pid_wait_until(-2);
+
+  actuate_intake(false);
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_wait();
+
+
+  pros::delay(750);
+
+  stop_intake_auto();
+
+  chassis.drive_set(0, 0);
 }
 
 void skills_sig() {
 
   chassis.odom_theta_set(0);
 
-  actuate_intake(false);
+  actuate_intake(true);
 
   spin_intake_auto(true,600,false);
   pros::delay(500);
@@ -230,6 +311,34 @@ void skills_sig() {
 
 }
 
+void drive_and_score() {
+  chassis.pid_drive_set(-20_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  actuate_back_mogo(true);
+
+  spin_intake_auto(true, 600);
+
+  pros::delay(2000);
+  stop_intake_auto();
+
+  chassis.pid_turn_set(60, TURN_SPEED);
+  chassis.pid_wait();
+
+  LadyBrownMech.set_brake_mode(pros::MotorBrake::hold);
+
+  LadyBrownMech.move_relative(375, 600);
+  pros::delay(300);
+
+  chassis.pid_drive_set(-10_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  LadyBrownMech.set_brake_mode(pros::MotorBrake::coast);
+
+
+  chassis.drive_set(0,0);
+}
+
 void full_awp_sig() {
 
   chassis.odom_theta_set(48.5);
@@ -239,7 +348,7 @@ void full_awp_sig() {
   // spin_intake_auto(true, 600, true);
 
   // drive to ring stack
-  chassis.pid_drive_set(14_in, DRIVE_SPEED, true);
+  chassis.pid_drive_set(14_in, 85, true);
 
   chassis.pid_wait_until(2);
 
@@ -248,11 +357,11 @@ void full_awp_sig() {
   Intake.move_relative(100000, 600);
   RingLift.move_relative(100000, 400);
 
-  chassis.pid_wait_until(7);
+  pros::delay(550);
+
+  // chassis.pid_wait_until(11);
 
   actuate_intake(false);
-
-  pros::delay(475);
 
   stop_intake_auto();
 
@@ -295,10 +404,10 @@ void full_awp_sig() {
   chassis.pid_turn_set(147.5,TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_drive_set(-20,DRIVE_SPEED, true);
-  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(-14,DRIVE_SPEED, true);
+  chassis.pid_wait_until(-2);
   actuate_back_mogo(true);
-  chassis.pid_drive_set(-2, DRIVE_SPEED);
+  chassis.pid_drive_set(-8, DRIVE_SPEED);
 
   chassis.pid_wait();
 

@@ -1,8 +1,11 @@
 #pragma once
 
+#include "autons.hpp"
 void default_constants();
 
+void elim_auto_2();
 void skills_sig();
+void drive_and_score();
 void full_awp_sig();
 void drive_example();
 void red_positive();
