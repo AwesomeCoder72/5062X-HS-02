@@ -3,7 +3,13 @@
 #include "autons.hpp"
 void default_constants();
 
+void safe_left();
+void skillz2();
+void left_elim();
+
 void elim_auto_2();
+void elim_auto_3();
+void red_right();
 void skills_sig();
 void drive_and_score();
 void full_awp_sig();

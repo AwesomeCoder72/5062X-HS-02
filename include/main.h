@@ -62,6 +62,9 @@
 // using namespace ez;
 using namespace okapi::literals;
 
+extern pros::Motor drive_lb;
+extern pros::Motor drive_rb;
+
 /**
  * Prototypes for the competition control tasks are redefined here to ensure
  * that they can be called from user code (i.e. calling autonomous from a

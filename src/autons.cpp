@@ -1,14 +1,22 @@
 #include "EZ-Template/drive/drive.hpp"
+#include "EZ-Template/util.hpp"
 #include "intake.hpp"
 #include "ladybrown.hpp"
 #include "main.h"
 #include "intake.hpp"
 #include "pistoncontrol.hpp"
 #include "pros/abstract_motor.hpp"
+#include "pros/motors.h"
 #include "pros/rtos.hpp"
 #include "subsystems.hpp"
+#include "drivecontrol.hpp"
 
-/////
+// #include 
+extern Drive chassis;
+
+// drive_left.
+
+
 // For installation, upgrading, documentations, and tutorials, check out our website!
 // https://ez-robotics.github.io/EZ-Template/
 /////
@@ -23,12 +31,12 @@ const int SWING_SPEED = 110;
 ///
 void default_constants() {
 
-  chassis.pid_drive_constants_set(19.0, 0.0, 90.0);         // Fwd/rev constants, used for odom and non odom motions
-  chassis.pid_heading_constants_set(2.0, 0.0, 15.0);        // Holds the robot straight while going forward without odom
+  // chassis.pid_drive_constants_set(19.0, 0.0, 100.0);         // Fwd/rev constants, used for odom and non odom motions
+  // chassis.pid_heading_constants_set(2.0, 0.0, 15.0);        // Holds the robot straight while going forward without odom
 
-  // chassis.pid_drive_constants_set(19.0, 0.0, 90.0);         // Fwd/rev constants, used for odom and non odom motions
-  // chassis.pid_heading_constants_set(5.0, 0.0, 10.0);        // Holds the robot straight while going forward without odom
-  chassis.pid_turn_constants_set(3.0, 0.05, 20.0, 15.0);     // Turn in place constants
+  chassis.pid_drive_constants_set(20.0, 0.0, 105.0);         // Fwd/rev constants, used for odom and non odom motions
+  chassis.pid_heading_constants_set(5.0, 0.0, 10.0);        // Holds the robot straight while going forward without odom
+  chassis.pid_turn_constants_set(2.9, 0.05, 24.0, 15.0);     // Turn in place constants
   chassis.pid_swing_constants_set(6.0, 0.0, 65.0);           // Swing constants
   chassis.pid_odom_angular_constants_set(6.5, 0.0, 52.5);    // Angular control for odom motions
   chassis.pid_odom_boomerang_constants_set(5.8, 0.0, 32.5); 
@@ -78,8 +86,77 @@ void default_constants() {
   chassis.pid_angle_behavior_set(ez::shortest);  // Changes the default behavior for turning, this defaults it to the shortest path there
 }
 
+// double correctGyroError(double desiredValue, double heading) {
+//     // """
+//     // Corrects the error in the Gyro sensor to make sure
+//     // that the turns using the gyro sensor are always in
+//     // the right direction.
+//     // """
+//     double tError = desiredValue - heading;
+//     if (tError > 180) return tError - 360;
+//     else if (tError < -180) return tError + 360;
+//     else return tError;
+// }
 
+// void driveStraightPID(double desiredDistance, double desiredHeading, double maxVelocity) {    
+//     // Drives straight using a PID loop for distance traveled,
+//     // and a PID loop for gyro error correction.
+//     // """
+//     double maxError = 2;
+//     double maxDerivative = 0.5;
+//     double dP = 0.7;
+//     double dI = 0.0;
+//     double dD = 0.0;
+    
+//     double tP = 0.7;
+//     double tI = 0.0;
+//     double tD = 0.3;
+    
+//     double tError = desiredHeading;
+//     double tPrevError = tError;
+//     double tDerivative = desiredHeading;
+//     double dError = desiredDistance;
+//     double dPrevError = dError;
+//     double dDerivative = desiredDistance;
+    
+//     double heading = chassis.odom_theta_get();
+//     // # tError = desiredHeading
+//     // # dError = desiredDistance
+    
+//     bool finished = false;
+    
+//     while (!finished) {
+//         if ((std::abs(tError)) < (maxError) && abs(tDerivative) < maxDerivative) {
+//             if ((desiredDistance) - drive_rt 3) {
+//                 finished = true;
+//             }
+        
+//         heading = chassis.odom_theta_get(); // Inertial.heading()
+//         // print round(driveLeft.rotation(), 2), round(driveRight.rotation(), 2), round(heading, 2), round(dError, 2), round(tError, 2)
+//         tError = correctGyroError(desiredHeading, heading);
+//         dError = desiredDistance - (driveLeft.rotation() + driveRight.rotation()) / 2;
+        
+//         dDerivative = (dError - dPrevError);
+//         tDerivative = (tError - tPrevError);
+        
+//         double dOutput = (dError * dP + dDerivative * dD);
+//         double tOutput = (tError * tP + tDerivative * tD);
+        
+//         chassis.drive_set(dOutput - tOutput, dOutput + tOutput);
 
+//         // driveLeft.spin(vex.DirectionType.FWD, throttleValues(dOutput - tOutput, maxVelocity))
+//         // driveRight.spin(vex.DirectionType.FWD, throttleValues(dOutput + tOutput, maxVelocity))
+        
+//         dPrevError = dError;
+//         tPrevError = tError;
+
+//         pros::delay(ez::util::DELAY_TIME);
+//                 }
+//     }
+        
+//     chassis.drive_set(0, 0);
+
+// }
 ///
 // Drive Example
 ///
@@ -88,6 +165,11 @@ void drive_example() {
   // The second parameter is max speed the robot will drive at
   // The third parameter is a boolean (true or false) for enabling/disabling a slew at the start of drive motions
   // for slew, only enable it when the drive distance is greater than the slew distance + a few inches
+
+  chassis.pid_swing_set(ez::RIGHT_SWING, -60_deg, 70);
+  chassis.pid_wait();
+
+  pros::delay(2000);
 
   // spin_intake_auto(true, 600);
   // pros::delay(3000);
@@ -104,10 +186,13 @@ void drive_example() {
   
   // chassis.pid_turn_set(90, TURN_SPEED);
 
-  chassis.pid_drive_set(-24, DRIVE_SPEED, true, false);
-  // pros::delay(400);
-  chassis.pid_wait();
-  chassis.drive_set(0, 0);
+  chassis.pid_drive_set(-24_in, DRIVE_SPEED, false, true);
+  pros::delay(400);
+
+  // driveStraightPID(100, 0,120);
+
+  // chassis.pid_wait();
+  // chassis.drive_set(0, 0);
   // pros::delay(3000);
   
 
@@ -121,18 +206,20 @@ void drive_example() {
   // chassis.pid_wait();
 }
 
-void elim_auto_2() {
-  chassis.odom_theta_set(62.5);
+void left_elim() {
+  chassis.odom_theta_set(57.2);
 
-  chassis.pid_drive_set(18_in, 85, true);
-  chassis.pid_wait_until(2);
+  // first ring stack
+
+  chassis.pid_drive_set(17_in, 70, true);
+  chassis.pid_wait_until(5);
 
   // actuate_intake(false);
 
   Intake.move_relative(100000, 600);
-  RingLift.move_relative(100000, 400);
+  // RingLift.move_relative(100000, 260);
 
-  pros::delay(650);
+  pros::delay(700);
 
   // chassis.pid_wait_until(11);
 
@@ -150,12 +237,927 @@ void elim_auto_2() {
 
   // pros::delay(1000);
 
-  chassis.pid_turn_set(0, TURN_SPEED);
+  // towards alliance stake
+
+  chassis.pid_turn_set(0, 60);
   
   chassis.pid_wait();
 
-  // drive to alliance stake
-  chassis.pid_drive_set(-6, DRIVE_SPEED, true);
+  pros::delay(250); // temporary
+
+  // score first ring on alliance stake
+  chassis.pid_drive_set(-9.5, 70, true);
+
+  chassis.pid_wait_until(-2);
+
+  actuate_intake(false);
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_wait();
+
+
+  pros::delay(750);
+
+  // stop_intake_auto();
+
+  // turn towards mogo
+
+  chassis.pid_drive_set(6.5, 55, true);
+  chassis.pid_wait();
+
+  pros::delay(350);
+
+
+  chassis.pid_turn_set(138, TURN_SPEED);
+  pros::delay(250);
+  stop_intake_auto();
+  chassis.pid_wait();
+
+  // grab mogo
+
+  chassis.pid_drive_set(-22, DRIVE_SPEED, true);
+  chassis.pid_wait_quick_chain();
+  // pros::delay(500);
+  chassis.pid_drive_set(-20, 40);
+
+  // pros::delay(150);
+
+  chassis.pid_wait_until(-11);
+
+  actuate_back_mogo(true);
+
+  chassis.pid_wait();
+
+  pros::delay(200);
+
+
+  chassis.pid_turn_set(-105, TURN_SPEED);
+  chassis.pid_wait();
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_drive_set(4, DRIVE_SPEED, true);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(11, 50 );
+
+  pros::delay(2000);
+
+  stop_intake_auto();
+}
+
+void skillz2() {
+
+  chassis.odom_theta_set(0);
+  
+  actuate_intake(false);
+
+  // score first ring on alliance stake
+
+  spin_intake_auto(true, 600);
+
+  pros::delay(400);
+
+  chassis.pid_drive_set(10_in, DRIVE_SPEED, true);
+  stop_intake_auto();
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-90, TURN_SPEED);
+  chassis.pid_wait();
+
+  // pick up mogo #1
+
+  chassis.pid_drive_set(-11, 80, true);
+  chassis.pid_wait_quick_chain();
+  // pros::delay(500);
+  chassis.pid_drive_set(-7, 20);
+
+  // pros::delay(150);
+
+  chassis.pid_wait_until(-5.5);
+  actuate_back_mogo(true);
+  chassis.pid_wait();
+  pros::delay(100);
+
+  chassis.pid_drive_set(-3, DRIVE_SPEED);
+  chassis.pid_wait();
+
+  // pick up first ring
+
+  chassis.pid_turn_set(0, TURN_SPEED);
+  chassis.pid_wait();
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_drive_set(13, DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(10, 40);
+  chassis.pid_wait();
+
+  pros::delay(500);
+
+  // pick up second ring
+
+  chassis.pid_turn_set(90, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(18, DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(10, 45);
+  chassis.pid_wait();
+
+  pros::delay(750);
+
+  chassis.pid_drive_set(-8, DRIVE_SPEED);
+  chassis.pid_wait();
+
+  // towards center
+
+  chassis.pid_turn_set(0, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(23.5, DRIVE_SPEED);
+  chassis.pid_wait();
+
+  // turn towards wall stake ring
+
+  chassis.pid_turn_set(90, TURN_SPEED);
+  // nextState();
+  chassis.pid_wait();
+
+  // score wall stake
+
+  chassis.pid_drive_set(3, DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(6, 30);
+  chassis.pid_wait();
+
+  // pros::delay(1500);
+
+  // spin_intake_auto(false, 600);
+  // pros::delay(50);
+  // stop_intake_auto();
+  // nextState();
+  // nextState();
+
+  pros::delay(750);
+
+  chassis.pid_drive_set(-10, 45);
+  // chassis.pid_wait_until(-4);
+  // nextState();
+  chassis.pid_wait();
+
+  // towards two rings
+
+  chassis.pid_turn_set(180, TURN_SPEED);
+  chassis.pid_wait();
+
+  // pick up two rings
+
+  chassis.pid_drive_set(35, DRIVE_SPEED);
+  spin_intake_auto(true, 600);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(26, 30);
+  chassis.pid_wait();
+
+  pros::delay(500);
+
+  chassis.pid_drive_set(-22, DRIVE_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(130, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(12, 40);
+  chassis.pid_wait();
+
+  pros::delay(800);
+
+  chassis.pid_drive_set(-16,DRIVE_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-40, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-27, DRIVE_SPEED);
+  actuate_back_mogo(false);
+  chassis.pid_wait();
+
+
+  chassis.pid_drive_set(10, DRIVE_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(90, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-59, DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(-12, 20);
+  chassis.pid_wait_until(-2);
+  actuate_back_mogo(true);
+  chassis.pid_wait();
+
+///////////////////////
+  // left side
+/////////////////////////////////////
+
+  // pick up first ring
+
+  chassis.pid_turn_set(0, TURN_SPEED);
+  chassis.pid_wait();
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_drive_set(13, DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(10, 40);
+  chassis.pid_wait();
+
+  pros::delay(500);
+
+  // pick up second ring
+
+  chassis.pid_turn_set(-90, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(18, DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(10, 45);
+  chassis.pid_wait();
+
+  pros::delay(750);
+
+  chassis.pid_drive_set(-4.5, DRIVE_SPEED);
+  chassis.pid_wait();
+
+  // towards center
+
+  chassis.pid_turn_set(0, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(21, DRIVE_SPEED);
+  chassis.pid_wait();
+
+  // turn towards wall stake ring
+
+  chassis.pid_turn_set(-90, TURN_SPEED);
+  nextState();
+  chassis.pid_wait();
+
+  // score wall stake
+
+  chassis.pid_drive_set(6, DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(9, 30);
+  chassis.pid_wait();
+
+  pros::delay(1500);
+
+  spin_intake_auto(false, 600);
+  pros::delay(50);
+  stop_intake_auto();
+  nextState();
+  nextState();
+
+  pros::delay(750);
+
+  chassis.pid_drive_set(-11.5, 45);
+  chassis.pid_wait_until(-4);
+  nextState();
+  chassis.pid_wait();
+
+  // towards two rings
+
+  chassis.pid_turn_set(180, TURN_SPEED);
+  chassis.pid_wait();
+
+  // pick up two rings
+
+  chassis.pid_drive_set(34, DRIVE_SPEED);
+  spin_intake_auto(true, 600);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(26, 45);
+  chassis.pid_wait();
+
+  pros::delay(500);
+
+  chassis.pid_drive_set(-22, DRIVE_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-130, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(12, 40);
+  chassis.pid_wait();
+
+  pros::delay(600);
+
+  chassis.pid_drive_set(-16,DRIVE_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(25, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-16, DRIVE_SPEED);
+  actuate_back_mogo(false);
+  chassis.pid_wait();
+
+
+  chassis.pid_drive_set(4, DRIVE_SPEED);
+  chassis.pid_wait();
+
+
+
+
+
+
+  
+  nextState();
+
+
+  
+
+
+}
+
+void safe_left() {
+  chassis.odom_theta_set(57.2);
+
+  // first ring stack
+
+  chassis.pid_drive_set(17_in, 70, true);
+  chassis.pid_wait_until(5);
+
+  // actuate_intake(false);
+
+  Intake.move_relative(100000, 600);
+  // RingLift.move_relative(100000, 260);
+
+  pros::delay(700);
+
+  // chassis.pid_wait_until(11);
+
+  actuate_intake(false);
+
+  stop_intake_auto();
+
+  chassis.pid_wait();
+
+  // chassis.pid_drive_set(-3_in, DRIVE_SPEED);
+  // chassis.pid_wait();
+
+  // stop_intake_auto();
+  // spin_intake_auto(true, 600, true);
+
+  // pros::delay(1000);
+
+  // towards alliance stake
+
+  chassis.pid_turn_set(0, 60);
+  
+  chassis.pid_wait();
+
+  pros::delay(250); // temporary
+
+  // score first ring on alliance stake
+  chassis.pid_drive_set(-11, 70, true);
+
+  chassis.pid_wait_until(-3);
+
+  actuate_intake(false);
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_wait();
+
+
+  pros::delay(750);
+
+  // stop_intake_auto();
+
+  // turn towards mogo
+
+  chassis.pid_drive_set(7, 55, true);
+  chassis.pid_wait();
+
+  pros::delay(350);
+
+
+  chassis.pid_turn_set(138, TURN_SPEED);
+  pros::delay(250);
+  stop_intake_auto();
+  chassis.pid_wait();
+
+  // grab mogo
+
+  chassis.pid_drive_set(-22, DRIVE_SPEED, true);
+  chassis.pid_wait_quick_chain();
+  // pros::delay(500);
+  chassis.pid_drive_set(-20, 50);
+
+  // pros::delay(150);
+
+  chassis.pid_wait_until(-11);
+
+  actuate_back_mogo(true);
+
+  chassis.pid_wait();
+
+  pros::delay(200);
+
+
+  chassis.pid_turn_set(-105, TURN_SPEED);
+  chassis.pid_wait();
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_drive_set(4, DRIVE_SPEED, true);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(11, 50 );
+
+  pros::delay(2000);
+
+  spin_intake_auto(false, 600);
+
+  chassis.pid_turn_set(-150, 100);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(30, 70, true);
+  chassis.drive_brake_set(pros::E_MOTOR_BRAKE_COAST);
+
+  chassis.pid_wait();
+
+  stop_intake_auto();
+
+  // LadyBrownMech.set_brake_mode(pros::MotorBrake::hold);
+
+  // LadyBrownMech.move_relative(375, 600);
+  // pros::delay(300);
+
+  // chassis.pid_drive_set(-31.5_in, 70, true);
+
+  // // chassis.pid_wait_until(-15);
+  // stop_intake_auto();
+  // chassis.pid_wait();
+
+  // LadyBrownMech.set_brake_mode(pros::MotorBrake::coast);
+  // chassis.drive_set(0,0);
+
+  // chassis.pid_turn_set(105, TURN_SPEED);
+  // chassis.pid_wait();
+
+
+  // chassis.pid_drive_set(48, DRIVE_SPEED, true);
+  // chassis.pid_wait();
+
+  // stop_intake_auto();
+
+  // actuate_back_mogo(false);
+
+  // chassis.pid_turn_set(-125, TURN_SPEED);
+  // chassis.pid_wait();
+
+  // chassis.pid_drive_set(-22, DRIVE_SPEED, true);
+  // chassis.pid_wait_quick_chain();
+  // // pros::delay(500)
+  // chassis.pid_drive_set(-18, 50, true);
+
+  // // pros::delay(150);
+
+  // chassis.pid_wait_until(-10.5);
+
+  // actuate_back_mogo(true);
+
+  // chassis.pid_wait();
+
+  // // pros::delay(200);
+
+  // chassis.pid_turn_set(95, TURN_SPEED);
+  // chassis.pid_wait();
+
+  // spin_intake_auto(true, 600);
+
+  // chassis.pid_drive_set(16, DRIVE_SPEED, true);
+  // chassis.pid_wait_quick_chain();
+  // chassis.pid_drive_set(12, 70 );
+
+
+
+  // LadyBrownMech.set_brake_mode(pros::MotorBrake::hold);
+
+  // LadyBrownMech.move_relative(375, 600);
+  // pros::delay(300);
+
+  // chassis.pid_turn_set(105, TURN_SPEED);
+  // chassis.pid_wait();
+
+  // chassis.pid_drive_set(-46_in, DRIVE_SPEED, true);
+
+  // chassis.pid_wait_until(-15);
+  // stop_intake_auto();
+  // chassis.pid_wait();
+
+  // LadyBrownMech.set_brake_mode(pros::MotorBrake::coast);
+}
+
+void elim_auto_2() {
+  chassis.odom_theta_set(57.2);
+
+  // first ring stack
+
+  chassis.pid_drive_set(17_in, 65, true);
+  chassis.pid_wait_until(5);
+
+  // actuate_intake(false);
+
+  Intake.move_relative(100000, 600);
+  // RingLift.move_relative(100000, 260);
+
+  pros::delay(300);
+
+  // chassis.pid_wait_until(11);
+
+  actuate_intake(false);
+
+  // stop_intake_auto();
+
+  chassis.pid_wait();
+
+  // chassis.pid_drive_set(-3_in, DRIVE_SPEED);
+  // chassis.pid_wait();
+
+  // stop_intake_auto();
+  // spin_intake_auto(true, 600, true);
+
+  // pros::delay(1000);
+
+  // towards alliance stake
+
+  chassis.pid_turn_set(0, 60);
+  
+  chassis.pid_wait();
+
+  pros::delay(250); // temporary
+
+  // score first ring on alliance stake
+  chassis.pid_drive_set(-9.5, DRIVE_SPEED, true);
+
+  chassis.pid_wait_until(-2);
+
+  actuate_intake(false);
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_wait();
+
+
+  pros::delay(750);
+
+  // stop_intake_auto();
+
+  // turn towards mogo
+
+  chassis.pid_drive_set(6.5, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  stop_intake_auto();
+
+  chassis.pid_turn_set(135, TURN_SPEED);
+  // pros::delay(150);
+  // chassis.pid_wait_until(60);
+  stop_intake_auto();
+  chassis.pid_wait();
+
+  // grab mogo
+
+  chassis.pid_drive_set(-22, DRIVE_SPEED, true);
+  chassis.pid_wait_quick_chain();
+  // pros::delay(500);
+  chassis.pid_drive_set(-18, 50, true);
+
+  chassis.pid_wait_until(-6.5);
+
+  actuate_back_mogo(true);
+
+  pros::delay(50);
+
+  // turn towards center rings
+
+  chassis.pid_turn_set(-70, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(24, 50, false);
+  chassis.pid_wait();
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_swing_set(ez::LEFT_SWING, -10_deg, 50);
+  chassis.pid_wait();
+
+  // chassis.pid_turn_set(-100, TURN_SPEED);
+  // chassis.pid_wait();  
+
+  pros::delay(300);
+
+  chassis.pid_drive_set(4, 50, false);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-2, 50, false);
+  chassis.pid_wait();
+
+  // chassis.pid_turn_set(-80, TURN_SPEED);
+  // chassis.pid_wait();
+
+  // chassis.pid_drive_set(6, DRIVE_SPEED, true);
+  // chassis.pid_wait();
+
+  // chassis.pid_swing_set(ez::LEFT_SWING, -10_deg, 50);
+  // chassis.pid_wait();
+
+
+  // chassis.pid_swing_set(ez::RIGHT_SWING, -50_deg, 70);
+  // chassis.pid_wait();
+
+  // intake first ring
+
+  // chassis.pid_drive_set(6, 65, true);
+  // chassis.pid_wait();
+
+  chassis.pid_drive_set(-3, 65, true);
+  chassis.pid_wait();
+
+  // chassis.pid_swing_set(ez::LEFT_SWING, -87_deg, 70);
+  // // chassis.pid_wait();
+
+  chassis.pid_turn_set(-70, TURN_SPEED);
+  chassis.pid_wait();
+
+  // intake second ring
+
+  chassis.pid_drive_set(12, 40, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-80, TURN_SPEED);
+  chassis.pid_wait();
+
+  // out of center rings
+
+  chassis.pid_drive_set(-2.5, 80, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(180, TURN_SPEED);
+  chassis.pid_wait();
+
+  // towards near ring stack
+
+  chassis.pid_drive_set(10, DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(4, 90);
+  chassis.pid_wait();
+
+
+  // chassis.pid_turn_set(-90, TURN_SPEED);
+  // chassis.pid_wait();
+
+
+
+
+  // chassis.drive_set(0, 0);
+}
+
+void red_right() {
+  chassis.odom_theta_set(-57.2);
+
+  // first ring stack
+
+  chassis.pid_drive_set(17_in, 70, true);
+  chassis.pid_wait_until(5);
+
+  // actuate_intake(false);
+
+  Intake.move_relative(100000, 600);
+  // RingLift.move_relative(100000, 300);
+
+  // pros::delay(815);
+
+  pros::delay(700);
+
+
+  // chassis.pid_wait_until(11);
+
+  actuate_intake(false);
+
+  stop_intake_auto();
+
+  chassis.pid_wait();
+
+  // chassis.pid_drive_set(-3_in, DRIVE_SPEED);
+  // chassis.pid_wait();
+
+  // stop_intake_auto();
+  // spin_intake_auto(true, 600, true);
+
+  // pros::delay(1000);
+
+  // towards alliance stake
+
+  chassis.pid_turn_set(0, 60);
+  
+  chassis.pid_wait();
+
+  pros::delay(250); // temporary
+
+  // score first ring on alliance stake
+  chassis.pid_drive_set(-9.5, DRIVE_SPEED, true);
+
+  chassis.pid_wait_until(-2);
+
+  actuate_intake(false);
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_wait();
+
+
+  pros::delay(750);
+
+  // stop_intake_auto();
+
+  // turn towards mogo
+
+  chassis.pid_drive_set(6.5, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-135, TURN_SPEED);
+  pros::delay(400);
+  stop_intake_auto();
+  chassis.pid_wait();
+
+  
+
+  // grab mogo
+
+  chassis.pid_drive_set(-22, DRIVE_SPEED, true);
+  chassis.pid_wait_quick_chain();
+  // pros::delay(500);
+  chassis.pid_drive_set(-18, 50, true);
+
+  chassis.pid_wait_until(-6.5);
+
+  actuate_back_mogo(true);
+
+  pros::delay(50);
+
+  chassis.pid_turn_set(90, TURN_SPEED);
+  
+  LadyBrownMech.set_brake_mode(pros::MotorBrake::hold);
+
+  LadyBrownMech.move_relative((375*4), 600);
+  pros::delay(500);
+
+  chassis.pid_wait();
+  LadyBrownMech.move_velocity(0);
+
+  chassis.pid_drive_set(8, DRIVE_SPEED, true);
+  spin_intake_auto(true, 600);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(8, 45, false);
+
+  pros::delay(400);
+
+  chassis.pid_turn_set(285, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(18, DRIVE_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-45, TURN_SPEED);
+  chassis.pid_wait();
+
+
+  LadyBrownMech.set_brake_mode(pros::MotorBrake::coast);
+
+  chassis.pid_drive_set(5_in, 45, true);
+  chassis.pid_wait();
+
+  pros::delay(2000);
+
+  stop_intake_auto();
+
+
+  chassis.drive_set(0,0);
+
+
+
+
+
+  // turn towards center rings
+
+  // chassis.pid_turn_set(30, TURN_SPEED);
+  // chassis.pid_wait();
+
+  // spin_intake_auto(true, 600);
+
+  
+
+  // chassis.pid_turn_set(80, TURN_SPEED);
+  // chassis.pid_wait();
+
+  // chassis.pid_drive_set(3, DRIVE_SPEED, true);
+  // chassis.pid_wait();
+
+  // chassis.pid_swing_set(ez::LEFT_SWING, 10_deg, 50);
+  // chassis.pid_wait();
+
+
+  // // chassis.pid_swing_set(ez::RIGHT_SWING, -50_deg, 70);
+  // // chassis.pid_wait();
+
+  // // intake first ring
+
+  // chassis.pid_drive_set(4, 65, true);
+  // chassis.pid_wait();
+
+  // chassis.pid_swing_set(ez::LEFT_SWING, 87_deg, 70);
+  // chassis.pid_wait();
+
+  // // chassis.pid_turn_set(-87, TURN_SPEED);
+  // // chassis.pid_wait();
+
+  // // intake second ring
+
+  // chassis.pid_drive_set(12, 40, true);
+  // chassis.pid_wait();
+
+  // chassis.pid_turn_set(80, TURN_SPEED);
+  // chassis.pid_wait();
+
+  // // out of center rings
+
+  // chassis.pid_drive_set(-2.5, 80, true);
+  // chassis.pid_wait();
+
+  // chassis.pid_turn_set(180, TURN_SPEED);
+  // chassis.pid_wait();
+
+  // // towards near ring stack
+
+  // chassis.pid_drive_set(10, DRIVE_SPEED);
+  // chassis.pid_wait_quick_chain();
+  // chassis.pid_drive_set(4, 90);
+  // chassis.pid_wait();
+
+
+  // chassis.pid_turn_set(-90, TURN_SPEED);
+  // chassis.pid_wait();
+
+
+
+
+  // chassis.drive_set(0, 0);
+}
+
+void elim_auto_3() {
+  chassis.odom_theta_set(57.2);
+
+  // first ring stack
+
+  chassis.pid_drive_set(17_in, 70, true);
+  chassis.pid_wait_until(5);
+
+  // actuate_intake(false);
+
+  Intake.move_relative(100000, 600);
+  RingLift.move_relative(100000, 260);
+
+  pros::delay(640);
+
+  // chassis.pid_wait_until(11);
+
+  actuate_intake(false);
+
+  stop_intake_auto();
+
+  chassis.pid_wait();
+
+  // chassis.pid_drive_set(-3_in, DRIVE_SPEED);
+  // chassis.pid_wait();
+
+  // stop_intake_auto();
+  // spin_intake_auto(true, 600, true);
+
+  // pros::delay(1000);
+
+  // towards alliance stake
+
+  chassis.pid_turn_set(0, 60);
+  
+  chassis.pid_wait();
+
+  pros::delay(250); // temporary
+
+  // score first ring on alliance stake
+  chassis.pid_drive_set(-9.5, DRIVE_SPEED, true);
 
   chassis.pid_wait_until(-2);
 
@@ -170,8 +1172,93 @@ void elim_auto_2() {
 
   stop_intake_auto();
 
-  chassis.drive_set(0, 0);
+  // turn towards mogo
+
+  chassis.pid_drive_set(6.5, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-135, TURN_SPEED);
+  chassis.pid_wait();
+
+  // grab mogo
+
+  chassis.pid_drive_set(-22, DRIVE_SPEED, true);
+  chassis.pid_wait_quick_chain();
+  // pros::delay(500);
+  chassis.pid_drive_set(-18, 50, true);
+
+  chassis.pid_wait_until(-6.5);
+
+  actuate_back_mogo(true);
+
+  pros::delay(50);
+
+  // turn towards center rings
+
+  chassis.pid_turn_set(30, TURN_SPEED);
+  chassis.pid_wait();
+
+  spin_intake_auto(true, 600);
+
+  
+
+  chassis.pid_turn_set(80, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(3, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  chassis.pid_swing_set(ez::LEFT_SWING, 10_deg, 50);
+  chassis.pid_wait();
+
+
+  // chassis.pid_swing_set(ez::RIGHT_SWING, -50_deg, 70);
+  // chassis.pid_wait();
+
+  // intake first ring
+
+  chassis.pid_drive_set(4, 65, true);
+  chassis.pid_wait();
+
+  chassis.pid_swing_set(ez::LEFT_SWING, 87_deg, 70);
+  chassis.pid_wait();
+
+  // chassis.pid_turn_set(-87, TURN_SPEED);
+  // chassis.pid_wait();
+
+  // intake second ring
+
+  chassis.pid_drive_set(12, 40, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(80, TURN_SPEED);
+  chassis.pid_wait();
+
+  // out of center rings
+
+  chassis.pid_drive_set(-2.5, 80, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(180, TURN_SPEED);
+  chassis.pid_wait();
+
+  // towards near ring stack
+
+  chassis.pid_drive_set(10, DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(4, 90);
+  chassis.pid_wait();
+
+
+  // chassis.pid_turn_set(-90, TURN_SPEED);
+  // chassis.pid_wait();
+
+
+
+
+  // chassis.drive_set(0, 0);
 }
+
 
 void skills_sig() {
 
@@ -312,17 +1399,37 @@ void skills_sig() {
 }
 
 void drive_and_score() {
-  chassis.pid_drive_set(-20_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
+  chassis.odom_theta_set(180);
+
+  actuate_intake(false);
+
+  chassis.pid_drive_set(-22_in, DRIVE_SPEED, true);
+  chassis.pid_wait_until(-20);
 
   actuate_back_mogo(true);
 
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-4_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+
+
+
   spin_intake_auto(true, 600);
 
-  pros::delay(2000);
-  stop_intake_auto();
 
-  chassis.pid_turn_set(60, TURN_SPEED);
+  chassis.pid_turn_set(-90, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(8_in, DRIVE_SPEED, true);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(16_in, 40, true);
+  chassis.pid_wait();
+
+  pros::delay(700);
+
+  chassis.pid_turn_set(-110, TURN_SPEED);
   chassis.pid_wait();
 
   LadyBrownMech.set_brake_mode(pros::MotorBrake::hold);
@@ -330,7 +1437,9 @@ void drive_and_score() {
   LadyBrownMech.move_relative(375, 600);
   pros::delay(300);
 
-  chassis.pid_drive_set(-10_in, DRIVE_SPEED, true);
+  chassis.pid_drive_set(-37_in, 90, true);
+  chassis.pid_wait_until(-12);
+  stop_intake_auto();
   chassis.pid_wait();
 
   LadyBrownMech.set_brake_mode(pros::MotorBrake::coast);
@@ -862,6 +1971,8 @@ void odom_drive_example() {
   // This works the same as pid_drive_set, but it uses odom instead!
   // You can replace pid_drive_set with pid_odom_set and your robot will
   // have better error correction.
+
+  
 
   chassis.pid_odom_set(24_in, DRIVE_SPEED, true);
   chassis.pid_wait();

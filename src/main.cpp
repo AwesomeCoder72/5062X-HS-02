@@ -71,7 +71,7 @@ pros::Motor drive_rf(DRIVE_RF_PORT);
 	DRIVE MOTOR GROUP INITIALIZATIONS
 */
 
-pros::MotorGroup drive_left({-DRIVE_LB_PORT, DRIVE_LT_PORT, -DRIVE_LF_PORT});
+pros::MotorGroup drive_left({DRIVE_LT_PORT, -DRIVE_LB_PORT,  -DRIVE_LF_PORT});
 pros::MotorGroup drive_right({DRIVE_RB_PORT, -DRIVE_RT_PORT, DRIVE_RF_PORT});
 
 
@@ -169,11 +169,11 @@ pros::adi::Pneumatics IntakeActuator('c', true);
 
 ez::Drive chassis(
     // These are your drive motors, the first motor is used for sensing!
-    {-DRIVE_LF_PORT, DRIVE_LT_PORT, -DRIVE_LB_PORT},     // Left Chassis Ports (negative port will reverse it!)
-    {DRIVE_RF_PORT, -DRIVE_RT_PORT, DRIVE_RB_PORT},  // Right Chassis Ports (negative port will reverse it!)
+    {-DRIVE_LB_PORT, -DRIVE_LF_PORT, DRIVE_LT_PORT },     // Left Chassis Ports (negative port will reverse it!)
+    {-DRIVE_RT_PORT, DRIVE_RB_PORT, DRIVE_RF_PORT},  // Right Chassis Ports (negative port will reverse it!)
 
     IMU_PORT,      // IMU Port
-    6.5,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
+     3.30,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
     450);
 
 // Uncomment the trackers you're using here!
@@ -260,22 +260,6 @@ if (!pros::competition::is_connected()) {
 	}
 }
 
-const int numStates = 4;
-//make sure these are in centidegrees (1 degree = 100 centidegrees)
-int states[numStates] = {14250, 17140, 23000, 27750};
-int currState = 0;
-int target = states[0];
-
-void nextState() {
-    currState += 1;
-    if (currState == numStates) {
-        currState = 0;
-    }
-    target = states[currState];
-}
-
-double last_error = 0;
-
 
 
 void initialize() {
@@ -312,10 +296,29 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-    
-    {"XENOFOX", drive_example}, {"GYATTTTT", elim_auto_2},
-    
+    {"Safe Left", safe_left},
+    {"left elim", left_elim},
+    {"skillz2" , []{pros::Task liftControlTask([]{
+        while (true) {
+            liftControl();
+            // ez::screen_print(std::to_string(LadyBrownRotationSensor.get_position()), 1);
+            pros::delay(10);
+            ez::screen_print("", 1);
+        }
+        }
+        );
+        skillz2();
+        }},
+    {"GYATTTTT", elim_auto_2},
+    {"red right", red_right},
+    {"sigma auto 2", elim_auto_3},
     {"drive and score", drive_and_score},
+   
+  
+    
+    {"XENOFOX", drive_example}, 
+        
+    
     {"full awp sig", full_awp_sig},
     
       {"skills sig", skills_sig},
@@ -524,18 +527,7 @@ bool actuate_mogo_btn_pressed_last = false;
 bool actuate_intake_btn_pressed = false;
 bool actuate_intake_btn_pressed_last = false;
 
-void liftControl() {
-    double kP = 0.025;
-    double kD = 0.0; 
-    double error = target - LadyBrownRotationSensor.get_position();
-    double derivative = (error-last_error);
-    double velocity = kP * error + kD * derivative;
-    last_error = error;
-    // if (LadyBrownRotationSensor.get_position() > states[numStates] + 50){
 
-    // }
-    LadyBrownMech.move(velocity);
-}
 
 void opcontrol() {
   // This is preference to what you like to drive on

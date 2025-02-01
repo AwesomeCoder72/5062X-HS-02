@@ -13,3 +13,32 @@ void spin_lady_brown_driver(int ladyBrownUpButtonValue, int ladyBrownDownButtonV
       }
 }
 
+const int numStates = 4;
+//make sure these are in centidegrees (1 degree = 100 centidegrees)
+int states[numStates] = {14250, 17140, 23000, 27750};
+int currState = 0;
+int target = states[0];
+
+void nextState() {
+    currState += 1;
+    if (currState == numStates) {
+        currState = 0;
+    }
+    target = states[currState];
+}
+
+double last_error = 0;
+
+void liftControl() {
+    double kP = 0.025;
+    double kD = 0.0; 
+    double error = target - LadyBrownRotationSensor.get_position();
+    double derivative = (error-last_error);
+    double velocity = kP * error + kD * derivative;
+    last_error = error;
+    // if (LadyBrownRotationSensor.get_position() > states[numStates] + 50){
+
+    // }
+    LadyBrownMech.move(velocity);
+}
+
