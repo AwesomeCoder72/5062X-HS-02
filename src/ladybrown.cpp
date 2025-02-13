@@ -15,7 +15,7 @@ void spin_lady_brown_driver(int ladyBrownUpButtonValue, int ladyBrownDownButtonV
 
 const int numStates = 4;
 //make sure these are in centidegrees (1 degree = 100 centidegrees)
-int states[numStates] = {14250, 17140, 23000, 27750};
+int states[numStates] = {14250, 16100, 23000, 27750};
 int currState = 0;
 int target = states[0];
 
@@ -30,7 +30,7 @@ void nextState() {
 double last_error = 0;
 
 void liftControl() {
-    double kP = 0.025;
+    double kP = 0.026;
     double kD = 0.0; 
     double error = target - LadyBrownRotationSensor.get_position();
     double derivative = (error-last_error);
