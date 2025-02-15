@@ -26,17 +26,22 @@
 #define RING_LIFT_MOTOR_PORT 15
 #define INTAKE_MOTOR_PORT 20
 
-#define LADY_BROWN_MOTOR_PORT 13
+#define LADY_BROWN_MOTOR_PORT 5
 
 #define LADY_BROWN_ROTATION_SENSOR_PORT 11
 
 #define DRIVE_LB_PORT 17
-#define DRIVE_LT_PORT 7
-#define DRIVE_LF_PORT 6
+#define DRIVE_LT_PORT 8
+#define DRIVE_LF_PORT 7
 
 #define DRIVE_RB_PORT 19 // out sometimes
-#define DRIVE_RT_PORT 5 // questionable
+#define DRIVE_RT_PORT 6 // questionable
 #define DRIVE_RF_PORT 14
+
+#define BACK_MOGO_ACTUATOR_PORT 'e'
+#define INTAKE_ACTUATOR_PORT 'b'
+#define RIGHT_DOINKER_ACTUATOR_PORT 'c'
+#define LEFT_DOINKER_ACTUATOR_PORT 'g'
 
 
 
@@ -115,6 +120,8 @@ pros::MotorGroup drive_right({DRIVE_RB_PORT, -DRIVE_RT_PORT, DRIVE_RF_PORT});
 
 #define ACTUATE_MOGO_BUTTON pros::E_CONTROLLER_DIGITAL_R2
 #define ACTUATE_INTAKE_BUTTON pros::E_CONTROLLER_DIGITAL_RIGHT
+#define ACTUATE_RIGHT_DOINKER_BUTTON pros::E_CONTROLLER_DIGITAL_B
+#define ACTUATE_LEFT_DOINKER_BUTTON pros::E_CONTROLLER_DIGITAL_DOWN
 
 
 
@@ -152,8 +159,10 @@ pros::Optical RingOptical(RING_OPTICAL_SENSOR_PORT);
 	PISTON INITIALIZATIONS
 */
 
-pros::adi::Pneumatics BackMogoActuator('b', false);
-pros::adi::Pneumatics IntakeActuator('c', true);
+pros::adi::Pneumatics BackMogoActuator(BACK_MOGO_ACTUATOR_PORT, false);
+pros::adi::Pneumatics IntakeActuator(INTAKE_ACTUATOR_PORT, false);
+pros::adi::Pneumatics RightDoinkerActuator(RIGHT_DOINKER_ACTUATOR_PORT, false);
+pros::adi::Pneumatics LeftDoinkerActuator(LEFT_DOINKER_ACTUATOR_PORT, false);
 
 // ez::Piston BackMogoActuator('a', false);
 
@@ -296,6 +305,7 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
+    {"red right center ring grab", red_right_center_ring_grab}, 
     {"Safe Left", safe_left},
     {"left elim", left_elim},
     {"skillz2" , []{pros::Task liftControlTask([]{
@@ -490,7 +500,7 @@ void ez_template_extras() {
       chassis.pid_tuner_toggle();
 
     // Trigger the selected autonomous routine
-    if (controller.get_digital(DIGITAL_B) && controller.get_digital(DIGITAL_DOWN)) {
+    if (controller.get_digital(DIGITAL_X) && controller.get_digital(DIGITAL_UP)) {
       pros::motor_brake_mode_e_t preference = chassis.drive_brake_get();
       autonomous();
       chassis.drive_brake_set(preference);
@@ -526,8 +536,6 @@ bool actuate_mogo_btn_pressed_last = false;
 
 bool actuate_intake_btn_pressed = false;
 bool actuate_intake_btn_pressed_last = false;
-
-
 
 void opcontrol() {
   // This is preference to what you like to drive on
@@ -572,7 +580,7 @@ void opcontrol() {
 
     spin_intake_driver(controller.get_digital(INTAKE_INTAKE_BUTTON), controller.get_digital(INTAKE_OUTTAKE_BUTTON));
 
-    spin_lady_brown_driver(controller.get_digital(LADY_BROWN_UP_BUTTON), controller.get_digital(LADY_BROWN_DOWN_BUTTON));
+    // spin_lady_brown_driver(controller.get_digital(LADY_BROWN_UP_BUTTON), controller.get_digital(LADY_BROWN_DOWN_BUTTON));
 
     // Mogo actuator control
 
@@ -600,6 +608,15 @@ void opcontrol() {
 		  else actuate_intake(false);
 		}
 
+    if (controller.get_digital_new_press(ACTUATE_LEFT_DOINKER_BUTTON)) {
+      if (!left_doinker_actuated_value) actuate_left_doinker(true);
+      else actuate_left_doinker(false);
+    }
+
+    if (controller.get_digital_new_press(ACTUATE_RIGHT_DOINKER_BUTTON)) {
+      if (!right_doinker_actuated_value) actuate_right_doinker(true);
+      else actuate_right_doinker(false);
+    }
 
     actuate_intake_btn_pressed_last = actuate_intake_btn_pressed;
 

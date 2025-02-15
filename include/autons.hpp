@@ -6,6 +6,7 @@ void default_constants();
 void safe_left();
 void skillz2();
 void left_elim();
+void red_right_center_ring_grab();
 
 void elim_auto_2();
 void elim_auto_3();

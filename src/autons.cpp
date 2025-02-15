@@ -160,6 +160,70 @@ void default_constants() {
 ///
 // Drive Example
 ///
+
+void red_right_center_ring_grab() {
+  chassis.odom_theta_set(-60);
+
+  // first ring stack
+
+  chassis.pid_drive_set(17_in, 70, true);
+  chassis.pid_wait_until(5);
+
+  // actuate_intake(false);
+
+  Intake.move_relative(100000, 600);
+  // RingLift.move_relative(100000, 300);
+
+  // pros::delay(815);
+
+  pros::delay(700);
+
+
+  // chassis.pid_wait_until(11);
+
+  actuate_intake(false);
+
+  stop_intake_auto();
+
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(0, 60);
+  
+  chassis.pid_wait();
+
+  pros::delay(250); // temporary
+
+  // score first ring on alliance stake
+  chassis.pid_drive_set(-10.5, 100, true);
+
+  chassis.pid_wait_until(-2);
+
+  actuate_intake(true);
+  // actuate_intake(false);
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_wait();
+
+  pros::delay(200);
+
+  chassis.pid_drive_set(14, 80, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-135, TURN_SPEED);
+  pros::delay(200);
+  stop_intake_auto();
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-34, 90, true);
+  chassis.pid_wait_until(-30);
+  actuate_back_mogo(true);
+  chassis.pid_wait();
+
+
+
+}
+
 void drive_example() {
   // The first parameter is target inches
   // The second parameter is max speed the robot will drive at

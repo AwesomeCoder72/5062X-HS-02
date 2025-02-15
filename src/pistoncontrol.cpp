@@ -11,9 +11,9 @@ void actuate_back_mogo(bool out_value) {
 
 bool intake_actuated_value = false;
 
-void actuate_intake(bool up_value) {
-  IntakeActuator.set_value(up_value);
-  intake_actuated_value = up_value;
+void actuate_intake(bool down_value) {
+  IntakeActuator.set_value(down_value);
+  intake_actuated_value = down_value;
 }
 
 bool actuate_piston(bool out_value, pros::adi::Pneumatics piston) {
@@ -21,3 +21,15 @@ bool actuate_piston(bool out_value, pros::adi::Pneumatics piston) {
   return out_value;
 }
 
+bool left_doinker_actuated_value = false;
+bool right_doinker_actuated_value = false;
+
+void actuate_left_doinker(bool out_value) {
+  LeftDoinkerActuator.set_value(out_value);
+  left_doinker_actuated_value = out_value;
+}
+
+void actuate_right_doinker(bool out_value) {
+  RightDoinkerActuator.set_value(out_value);
+  right_doinker_actuated_value = out_value;
+}
