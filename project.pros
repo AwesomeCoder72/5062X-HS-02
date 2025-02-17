@@ -427,7 +427,7 @@
       "description": "roboticsisez.com",
       "slot": 3,
       "icon": "pizza",
-      "after": "screen"
+      "after": "run"
     },
     "use_early_access": false
   }

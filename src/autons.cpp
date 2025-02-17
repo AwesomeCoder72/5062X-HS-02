@@ -161,42 +161,47 @@ void default_constants() {
 // Drive Example
 ///
 
-void red_right_center_ring_grab() {
-  chassis.odom_theta_set(-60);
+void blue_left_center_ring_grab_awp() {
+  chassis.odom_theta_set(60);
+
+  
 
   // first ring stack
 
-  chassis.pid_drive_set(17_in, 70, true);
-  chassis.pid_wait_until(5);
+  chassis.pid_drive_set(15_in, 45, true);
+  // chassis.pid_wait_until(5);
 
-  // actuate_intake(false);
 
   Intake.move_relative(100000, 600);
+
   // RingLift.move_relative(100000, 300);
 
   // pros::delay(815);
 
-  pros::delay(700);
+  // pros::delay(700);
 
 
-  // chassis.pid_wait_until(11);
+  chassis.pid_wait_until(13);
 
-  actuate_intake(false);
+  actuate_intake(true);
 
-  stop_intake_auto();
+  // Intake.move_relative(100000, 600);
+
 
   chassis.pid_wait();
 
-  chassis.pid_turn_set(0, 60);
+  stop_intake_auto();
+
+  chassis.pid_turn_set(0, 55);
   
   chassis.pid_wait();
 
   pros::delay(250); // temporary
 
   // score first ring on alliance stake
-  chassis.pid_drive_set(-10.5, 100, true);
+  chassis.pid_drive_set(-10, 85, true);
 
-  chassis.pid_wait_until(-2);
+  chassis.pid_wait_until(-6);
 
   actuate_intake(true);
   // actuate_intake(false);
@@ -205,7 +210,126 @@ void red_right_center_ring_grab() {
 
   chassis.pid_wait();
 
+  pros::delay(220);
+
+  chassis.pid_drive_set(14, 80, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(135, TURN_SPEED);
   pros::delay(200);
+  stop_intake_auto();
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-34, 90, true);
+  chassis.pid_wait_until(-30);
+  actuate_back_mogo(true);
+  chassis.pid_wait();
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_turn_set(53, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(16, 90, true);
+  chassis.pid_wait_until(6);
+  stop_intake_auto();
+  actuate_intake(false);
+  chassis.pid_wait();
+
+  actuate_left_doinker(false);
+  actuate_left_doinker(false);
+
+
+  pros::delay(250);
+  
+  chassis.pid_swing_set(ez::RIGHT_SWING, 18_deg, 50);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(1.5, 60, true);
+  chassis.pid_wait();
+
+  actuate_right_doinker(true);
+
+  pros::delay(150);
+
+  chassis.pid_swing_set(ez::RIGHT_SWING, 40_deg, 60);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-38, DRIVE_SPEED, true);
+
+  
+  chassis.pid_wait_until(-26);
+  actuate_left_doinker(true);
+
+  chassis.pid_wait_until(-30);
+  actuate_right_doinker(false);
+
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-80, TURN_SPEED);
+  actuate_intake(true);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(4, DRIVE_SPEED, false);
+  chassis.pid_wait();
+
+  chassis.pid_swing_set(ez::LEFT_SWING, 90, 60);
+  spin_intake_auto(true, 600);
+
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(14, 100, true);
+  chassis.pid_wait();
+}
+
+void red_right_center_ring_grab_awp() {
+  chassis.odom_theta_set(-60);
+
+  // first ring stack
+
+  chassis.pid_drive_set(15_in, 45, true);
+  // chassis.pid_wait_until(5);
+
+
+  Intake.move_relative(100000, 600);
+
+  // RingLift.move_relative(100000, 300);
+
+  // pros::delay(815);
+
+  // pros::delay(700);
+
+
+  chassis.pid_wait_until(13);
+
+  actuate_intake(true);
+
+  // Intake.move_relative(100000, 600);
+
+
+  chassis.pid_wait();
+
+  stop_intake_auto();
+
+  chassis.pid_turn_set(0, 55);
+  
+  chassis.pid_wait();
+
+  pros::delay(250); // temporary
+
+  // score first ring on alliance stake
+  chassis.pid_drive_set(-10, 85, true);
+
+  chassis.pid_wait_until(-6);
+
+  actuate_intake(true);
+  // actuate_intake(false);
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_wait();
+
+  pros::delay(220);
 
   chassis.pid_drive_set(14, 80, true);
   chassis.pid_wait();
@@ -220,7 +344,524 @@ void red_right_center_ring_grab() {
   actuate_back_mogo(true);
   chassis.pid_wait();
 
+  spin_intake_auto(true, 600);
 
+  chassis.pid_turn_set(-56, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(17, 90, true);
+  chassis.pid_wait_until(6);
+  stop_intake_auto();
+  actuate_intake(false);
+  chassis.pid_wait();
+
+  actuate_right_doinker(true);
+
+  pros::delay(250);
+  
+  chassis.pid_swing_set(ez::LEFT_SWING, -18_deg, 50);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(1.5, 60, true);
+  chassis.pid_wait();
+
+  actuate_left_doinker(true);
+  actuate_left_doinker(false);
+
+  pros::delay(150);
+
+  chassis.pid_swing_set(ez::LEFT_SWING, -40_deg, 60);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-38, DRIVE_SPEED, true);
+
+  
+  chassis.pid_wait_until(-26);
+  actuate_right_doinker(false);
+
+  chassis.pid_wait_until(-30);
+  actuate_left_doinker(true);
+
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-80, TURN_SPEED);
+  actuate_intake(true);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(4, DRIVE_SPEED, false);
+  chassis.pid_wait();
+
+  chassis.pid_swing_set(ez::LEFT_SWING, 90, 60);
+  spin_intake_auto(true, 600);
+
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(14, 100, true);
+  chassis.pid_wait();
+
+  pros::delay(2000);
+
+  actuate_back_mogo(false);
+
+  chassis.pid_drive_set(4, 100, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(180, 90);
+  chassis.pid_wait();
+}
+
+void blue_left_solo_awp() {
+  chassis.odom_theta_set(60);
+
+  // first ring stack
+
+  chassis.pid_drive_set(15_in, 45, true);
+  // chassis.pid_wait_until(5);
+
+
+  Intake.move_relative(100000, 600);
+
+  // RingLift.move_relative(100000, 300);
+
+  // pros::delay(815);
+
+  // pros::delay(700);
+
+
+  chassis.pid_wait_until(13);
+
+  actuate_intake(true);
+
+  // Intake.move_relative(100000, 600);
+
+
+  chassis.pid_wait();
+
+  stop_intake_auto();
+
+  chassis.pid_turn_set(0, 55);
+  
+  chassis.pid_wait();
+
+  // pros::delay(250); // temporary
+
+  // score first ring on alliance stake
+  chassis.pid_drive_set(-10, 85, true);
+
+  chassis.pid_wait_until(-6);
+
+  actuate_intake(true);
+  // actuate_intake(false);
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_wait();
+
+  pros::delay(250);
+
+  chassis.pid_drive_set(14, 80, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(135, TURN_SPEED);
+  pros::delay(200);
+  stop_intake_auto();
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-34, 75, true);
+  chassis.pid_wait_until(-30);
+  actuate_back_mogo(true);
+  chassis.pid_wait();
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_turn_set(-100, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(16, 70, true);
+  chassis.pid_wait();
+
+  pros::delay(1750);
+
+  chassis.pid_drive_set(-6, 70, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(80, TURN_SPEED);
+
+  chassis.pid_wait();
+
+  LadyBrownMech.move_relative(1500, 600);
+  pros::delay(300);
+
+  actuate_back_mogo(false);
+
+  stop_intake_auto();
+
+  chassis.pid_drive_set(14, 60);
+  chassis.pid_wait();
+  
+
+
+}
+
+void red_right_solo_awp() {
+  chassis.odom_theta_set(-60);
+
+  // first ring stack
+
+  chassis.pid_drive_set(15_in, 45, true);
+  // chassis.pid_wait_until(5);
+
+
+  Intake.move_relative(100000, 600);
+
+  // RingLift.move_relative(100000, 300);
+
+  // pros::delay(815);
+
+  // pros::delay(700);
+
+
+  chassis.pid_wait_until(13);
+
+  actuate_intake(true);
+
+  // Intake.move_relative(100000, 600);
+
+
+  chassis.pid_wait();
+
+  stop_intake_auto();
+
+  chassis.pid_turn_set(0, 55);
+  
+  chassis.pid_wait();
+
+  // pros::delay(250); // temporary
+
+  // score first ring on alliance stake
+  chassis.pid_drive_set(-10, 85, true);
+
+  chassis.pid_wait_until(-6);
+
+  actuate_intake(true);
+  // actuate_intake(false);
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_wait();
+
+  pros::delay(250);
+
+  chassis.pid_drive_set(14, 80, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-135, TURN_SPEED);
+  pros::delay(200);
+  stop_intake_auto();
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-34, 75, true);
+  chassis.pid_wait_until(-30);
+  actuate_back_mogo(true);
+  chassis.pid_wait();
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_turn_set(100, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(16, 70, true);
+  chassis.pid_wait();
+
+  pros::delay(1750);
+
+  chassis.pid_turn_set(-50, TURN_SPEED);
+
+  chassis.pid_wait();
+
+  LadyBrownMech.move_relative(1500, 600);
+  pros::delay(300);
+
+  actuate_back_mogo(false);
+
+  stop_intake_auto();
+
+  chassis.pid_drive_set(18, 100);
+  chassis.pid_wait();
+  
+
+
+}
+
+void blue_left_center_ring_grab() {
+  chassis.odom_theta_set(60);
+
+  // first ring stack
+
+  chassis.pid_drive_set(15_in, 45, true);
+  // chassis.pid_wait_until(5);
+
+
+  Intake.move_relative(100000, 600);
+
+  // RingLift.move_relative(100000, 300);
+
+  // pros::delay(815);
+
+  // pros::delay(700);
+
+
+  chassis.pid_wait_until(13);
+
+  actuate_intake(true);
+
+  // Intake.move_relative(100000, 600);
+
+
+  chassis.pid_wait();
+
+  stop_intake_auto();
+
+  chassis.pid_turn_set(0, 55);
+  
+  chassis.pid_wait();
+
+  // pros::delay(250); // temporary
+
+  // score first ring on alliance stake
+  chassis.pid_drive_set(-10, 85, true);
+
+  chassis.pid_wait_until(-6);
+
+  actuate_intake(true);
+  // actuate_intake(false);
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_wait();
+
+  pros::delay(220);
+
+  chassis.pid_drive_set(14, 80, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(135, TURN_SPEED);
+  pros::delay(200);
+  stop_intake_auto();
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-34, 90, true);
+  chassis.pid_wait_until(-30);
+  actuate_back_mogo(true);
+  chassis.pid_wait();
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_turn_set(53, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(16, 90, true);
+  chassis.pid_wait_until(6);
+  stop_intake_auto();
+  actuate_intake(false);
+  chassis.pid_wait();
+
+  actuate_left_doinker(true);
+
+  pros::delay(250);
+  
+  chassis.pid_swing_set(ez::RIGHT_SWING, -18_deg, 50);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(1.5, 60, true);
+  chassis.pid_wait();
+
+  actuate_right_doinker(true);
+
+  pros::delay(150);
+
+  chassis.pid_swing_set(ez::RIGHT_SWING, 40_deg, 60);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-38, DRIVE_SPEED, true);
+
+  
+  chassis.pid_wait_until(-26);
+  actuate_right_doinker(false);
+
+  chassis.pid_wait_until(-30);
+  actuate_left_doinker(false);
+
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(80, TURN_SPEED);
+  actuate_intake(true);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(4, DRIVE_SPEED, false);
+  chassis.pid_wait();
+
+  chassis.pid_swing_set(ez::RIGHT_SWING, -90, 60);
+  spin_intake_auto(true, 600);
+
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(14, 100, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(10, TURN_SPEED);
+  chassis.pid_wait();
+
+  pros::delay(550);
+
+  // chassis.pid_drive_set(-9, 100, true);
+  // chassis.pid_wait();
+
+  actuate_back_mogo(false);
+
+  stop_intake_auto();
+
+  chassis.pid_drive_set(13, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(180, TURN_SPEED);
+  chassis.pid_wait();
+
+}
+
+void red_right_center_ring_grab() {
+  chassis.odom_theta_set(-60);
+
+  // first ring stack
+
+  chassis.pid_drive_set(15_in, 45, true);
+  // chassis.pid_wait_until(5);
+
+
+  Intake.move_relative(100000, 600);
+
+  // RingLift.move_relative(100000, 300);
+
+  // pros::delay(815);
+
+  // pros::delay(700);
+
+
+  chassis.pid_wait_until(13);
+
+  actuate_intake(true);
+
+  // Intake.move_relative(100000, 600);
+
+
+  chassis.pid_wait();
+
+  stop_intake_auto();
+
+  chassis.pid_turn_set(0, 55);
+  
+  chassis.pid_wait();
+
+  pros::delay(250); // temporary
+
+  // score first ring on alliance stake
+  chassis.pid_drive_set(-10, 85, true);
+
+  chassis.pid_wait_until(-6);
+
+  actuate_intake(true);
+  // actuate_intake(false);
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_wait();
+
+  pros::delay(220);
+
+  chassis.pid_drive_set(14, 80, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-135, TURN_SPEED);
+  pros::delay(200);
+  stop_intake_auto();
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-34, 90, true);
+  chassis.pid_wait_until(-30);
+  actuate_back_mogo(true);
+  chassis.pid_wait();
+
+  spin_intake_auto(true, 600);
+
+  chassis.pid_turn_set(-53, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(16, 90, true);
+  chassis.pid_wait_until(6);
+  stop_intake_auto();
+  actuate_intake(false);
+  chassis.pid_wait();
+
+  actuate_right_doinker(true);
+
+  pros::delay(250);
+  
+  chassis.pid_swing_set(ez::RIGHT_SWING, 18_deg, 50);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(1.5, 60, true);
+  chassis.pid_wait();
+
+  actuate_left_doinker(true);
+
+  pros::delay(150);
+
+  chassis.pid_swing_set(ez::LEFT_SWING, -40_deg, 60);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-38, DRIVE_SPEED, true);
+
+  
+  chassis.pid_wait_until(-26);
+  actuate_left_doinker(false);
+
+  chassis.pid_wait_until(-30);
+  actuate_right_doinker(false);
+
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-80, TURN_SPEED);
+  actuate_intake(true);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(4, DRIVE_SPEED, false);
+  chassis.pid_wait();
+
+  chassis.pid_swing_set(ez::LEFT_SWING, 90, 60);
+  spin_intake_auto(true, 600);
+
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(14, 100, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-10, TURN_SPEED);
+  chassis.pid_wait();
+
+  pros::delay(550);
+
+  // chassis.pid_drive_set(-9, 100, true);
+  // chassis.pid_wait();
+
+  actuate_back_mogo(false);
+
+  stop_intake_auto();
+
+  chassis.pid_drive_set(13, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(180, TURN_SPEED);
+  chassis.pid_wait();
 
 }
 

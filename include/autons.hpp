@@ -6,7 +6,14 @@ void default_constants();
 void safe_left();
 void skillz2();
 void left_elim();
+void blue_left_solo_awp();
+void red_right_solo_awp();
 void red_right_center_ring_grab();
+void blue_left_center_ring_grab_awp();
+void blue_left_center_ring_grab();
+
+void red_right_center_ring_grab_awp();
+
 
 void elim_auto_2();
 void elim_auto_3();

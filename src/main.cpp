@@ -41,7 +41,7 @@
 #define BACK_MOGO_ACTUATOR_PORT 'e'
 #define INTAKE_ACTUATOR_PORT 'b'
 #define RIGHT_DOINKER_ACTUATOR_PORT 'c'
-#define LEFT_DOINKER_ACTUATOR_PORT 'g'
+#define LEFT_DOINKER_ACTUATOR_PORT 'h'
 
 
 
@@ -162,7 +162,7 @@ pros::Optical RingOptical(RING_OPTICAL_SENSOR_PORT);
 pros::adi::Pneumatics BackMogoActuator(BACK_MOGO_ACTUATOR_PORT, false);
 pros::adi::Pneumatics IntakeActuator(INTAKE_ACTUATOR_PORT, false);
 pros::adi::Pneumatics RightDoinkerActuator(RIGHT_DOINKER_ACTUATOR_PORT, false);
-pros::adi::Pneumatics LeftDoinkerActuator(LEFT_DOINKER_ACTUATOR_PORT, false);
+pros::adi::Pneumatics LeftDoinkerActuator(LEFT_DOINKER_ACTUATOR_PORT, true);
 
 // ez::Piston BackMogoActuator('a', false);
 
@@ -305,6 +305,17 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
+    {"awp red right center ring grab", red_right_center_ring_grab_awp}, 
+    {"blue left solo awp", blue_left_solo_awp},
+    {"awp blue left center ring grab", blue_left_center_ring_grab_awp}, 
+
+    
+    
+    {"red right solo awp", red_right_solo_awp},
+    {"blue left center ring grab", blue_left_center_ring_grab}, 
+
+    
+
     {"red right center ring grab", red_right_center_ring_grab}, 
     {"Safe Left", safe_left},
     {"left elim", left_elim},

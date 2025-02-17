@@ -15,6 +15,6 @@ extern bool left_doinker_actuated_value;
 extern bool right_doinker_actuated_value;
 
 void actuate_back_mogo(bool out_value);
-void actuate_intake(bool up_value);
+void actuate_intake(bool down_value);
 void actuate_left_doinker(bool out_value);
 void actuate_right_doinker(bool out_value);
