@@ -16,16 +16,20 @@ void spin_lady_brown_driver(int ladyBrownUpButtonValue, int ladyBrownDownButtonV
 const int numStates = 4;
 //make sure these are in centidegrees (1 degree = 100 centidegrees)
 // int states[numStates] = {14250, 16100, 23000, 27750};
-int states[numStates] = {21700, 24400, 25700, 0};
+int states[numStates] = {0, 37800, 52000, 59000};
 int currState = 0;
-int target = states[0];
+int ladyBrownTarget = states[0];
 
-void nextState() {
+void nextState(int theNextState) {
+  if (theNextState == -1) {
     currState += 1;
-    if (currState == numStates) {
+    if (currState == (numStates - 1)) {
         currState = 0;
     }
-    target = states[currState];
+    ladyBrownTarget = states[currState];
+  } else {
+    ladyBrownTarget = states[theNextState];
+  }
 }
 
 double last_error = 0;
@@ -37,6 +41,11 @@ double correct360Error(double desiredValue, double sensorValue) {
     // the right direction.
     // """
     double tError = desiredValue - sensorValue;
+
+    // if (desiredValue == 0) {
+    //     return tError;
+    // }
+
     if (tError > 18000 )
         return tError - 36000;
     else if (tError < -18000)
@@ -47,8 +56,9 @@ double correct360Error(double desiredValue, double sensorValue) {
 
 void liftControl() {
     double kP = 0.02; // 0.024;
-    double kD = 0.0; // 0.02; 
-    double error =  correct360Error(target,  LadyBrownRotationSensor.get_position());//target-LadyBrownRotationSensor.get_position();
+    double kD = 0.001; // 0.02; 
+    double error =  correct360Error(ladyBrownTarget,  LadyBrownRotationSensor.get_position());//target-LadyBrownRotationSensor.get_position();
+    
     double derivative = (error-last_error);
     double velocity = kP * error + kD * derivative;
     last_error = error;

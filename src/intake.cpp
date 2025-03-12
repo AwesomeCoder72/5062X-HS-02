@@ -1,6 +1,7 @@
 #include "intake.hpp"
 #include "main.h"
 
+int IntakeInputState = 0; 
 
 
 void spin_intake_auto(bool intaking, int velocity, bool just_first_stage) {

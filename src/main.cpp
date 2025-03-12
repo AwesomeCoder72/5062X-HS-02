@@ -1,4 +1,5 @@
 #include "main.h"
+#include <concepts>
 #include <string>
 #include "EZ-Template/util.hpp"
 #include "autons.hpp"
@@ -8,6 +9,7 @@
 #include "pistoncontrol.hpp"
 #include "drivecontrol.hpp"
 #include "pros/colors.hpp"
+#include "pros/misc.h"
 #include "pros/motors.hpp"
 #include "pros/rotation.hpp"
 
@@ -23,25 +25,25 @@
 	MOTOR PORT DEFINITIONS
 */
 
-#define RING_LIFT_MOTOR_PORT 15
-#define INTAKE_MOTOR_PORT 20
+#define RING_LIFT_MOTOR_PORT 10
+#define INTAKE_MOTOR_PORT 15
 
-#define LADY_BROWN_MOTOR_PORT 5
+#define LADY_BROWN_MOTOR_PORT 1
 
-#define LADY_BROWN_ROTATION_SENSOR_PORT 11
+#define LADY_BROWN_ROTATION_SENSOR_PORT 3
 
-#define DRIVE_LB_PORT 17
-#define DRIVE_LT_PORT 8
-#define DRIVE_LF_PORT 7
+#define DRIVE_LB_PORT 20 // 17
+#define DRIVE_LT_PORT 7
+#define DRIVE_LF_PORT 2
 
-#define DRIVE_RB_PORT 19 // out sometimes
-#define DRIVE_RT_PORT 6 // questionable
-#define DRIVE_RF_PORT 14
+#define DRIVE_RB_PORT 18 
+#define DRIVE_RT_PORT 9
+#define DRIVE_RF_PORT 12
 
-#define BACK_MOGO_ACTUATOR_PORT 'e'
-#define INTAKE_ACTUATOR_PORT 'b'
-#define RIGHT_DOINKER_ACTUATOR_PORT 'c'
-#define LEFT_DOINKER_ACTUATOR_PORT 'h'
+#define BACK_MOGO_ACTUATOR_PORT 'd'
+#define INTAKE_ACTUATOR_PORT 'a'
+#define RIGHT_DOINKER_ACTUATOR_PORT 'b'
+#define LEFT_DOINKER_ACTUATOR_PORT 'c'
 
 
 
@@ -84,13 +86,13 @@ pros::MotorGroup drive_right({DRIVE_RB_PORT, -DRIVE_RT_PORT, DRIVE_RF_PORT});
 	IMU PORT DEFINITIONS
 */
 
-#define IMU_PORT 12
+#define IMU_PORT 8
 
 /*
 	SMART SENSOR PORT DEFINTIONS
 */
 
-#define RING_OPTICAL_SENSOR_PORT 1
+#define RING_OPTICAL_SENSOR_PORT 6
 
 /*
 	DIGITAL PORT DEFINITIONS
@@ -114,7 +116,7 @@ pros::MotorGroup drive_right({DRIVE_RB_PORT, -DRIVE_RT_PORT, DRIVE_RF_PORT});
 #define INTAKE_INTAKE_BUTTON pros::E_CONTROLLER_DIGITAL_L1
 #define INTAKE_OUTTAKE_BUTTON pros::E_CONTROLLER_DIGITAL_L2
 
-#define LADY_BROWN_UP_BUTTON pros::E_CONTROLLER_DIGITAL_RIGHT
+#define SHIFT_BUTTON pros::E_CONTROLLER_DIGITAL_Y
 #define LADY_BROWN_DOWN_BUTTON pros::E_CONTROLLER_DIGITAL_DOWN
 #define LADY_BROWN_NEXT_BUTTON pros::E_CONTROLLER_DIGITAL_R1
 
@@ -160,7 +162,7 @@ pros::Optical RingOptical(RING_OPTICAL_SENSOR_PORT);
 */
 
 pros::adi::Pneumatics BackMogoActuator(BACK_MOGO_ACTUATOR_PORT, false);
-pros::adi::Pneumatics IntakeActuator(INTAKE_ACTUATOR_PORT, false);
+pros::adi::Pneumatics IntakeActuator(INTAKE_ACTUATOR_PORT, true);
 pros::adi::Pneumatics RightDoinkerActuator(RIGHT_DOINKER_ACTUATOR_PORT, false);
 pros::adi::Pneumatics LeftDoinkerActuator(LEFT_DOINKER_ACTUATOR_PORT, true);
 
@@ -200,8 +202,107 @@ ez::Drive chassis(
  * to keep execution time for this mode under a few seconds.
  */
 
+
+// 0 = off, 
+// 1 = intake & ring lift in, 
+// 2 = intake & ring lift out, 
+// 3 = intake only in, 
+// 4 = ring lift only in,
+// 5 = intake ring until optical sensor senses
+int ColorSorterToggle = 1; // 0 = off, 1 = throw out red, 2 = throw out blue
+bool ActivelyColorSorting = false;
+bool ringInPosition = false;
+
+float currentProximity = RingOptical.get_proximity();
+float lastProximity = currentProximity;
+
 bool valueWithinRange(int value, int target, int range) {
-  return ((value > target - range) && (value < target + range));
+	return ((value > target - range) && (value < target + range));
+  }
+
+int checkRingColor() {
+	// 0 = no ring, 1 = red ring, 2 = blue ring
+	if (valueWithinRange(RingOptical.get_hue(), 10, 8)) {
+		return 1;
+	} else if (valueWithinRange(RingOptical.get_hue(), 210, 8)) {
+		return 2;
+	} else {
+		return 0;
+	}
+}
+
+void IntakeControlTaskFunction () {
+	while (true) {
+		// pros::lcd::print(0, "Hue: %f", RingOptical.get_hue());
+    pros::lcd::print(0, "Proximity: %d`", RingOptical.get_proximity());
+    int currentRingColor = checkRingColor();
+    currentProximity = RingOptical.get_proximity();
+		// pros::lcd::print(1, "Check Ring Color: %d", currentRingColor);
+    pros::lcd::print(1, "Intake Input State: %d", IntakeInputState);
+		if (ColorSorterToggle == 0) {
+			pros::lcd::print(4, "Color sorter off");
+		} else if (ColorSorterToggle == 1) {
+			pros::lcd::print(4, "Scheduled to sort out Red");
+		} else if (ColorSorterToggle == 2) {
+			pros::lcd::print(4, "Scheduled to sort out Blue");
+		}
+		
+			// RingLift.move_voltage(12000);
+		if (IntakeInputState == 0) {
+			RingLift.move_voltage(0);
+      Intake.move_voltage(0);
+		} else if (IntakeInputState == 1) {
+			if (((currentRingColor == 1 && ColorSorterToggle == 1) || 
+				(currentRingColor == 2 && ColorSorterToggle == 2)) ||
+				(ActivelyColorSorting))  {
+				pros::lcd::print(2, "sorting out ring");
+				ActivelyColorSorting = true;
+        bool ringHasPassed = false;
+
+        // RingLift.move_relative(10000, 600);
+
+        while (!ringHasPassed) {
+          RingLift.move_voltage(12000);
+          if ((currentRingColor != checkRingColor())) {
+            RingLift.move_relative(-10000, 600);
+            pros::delay(80);
+            ringHasPassed = true;
+          } 
+        }
+				
+				ActivelyColorSorting = false;
+				pros::lcd::print(2, "");
+			} else {
+        Intake.move_voltage(12000);
+				RingLift.move_voltage(12000);
+			}
+		} else if (IntakeInputState == 2) {
+      Intake.move_voltage(-12000);
+			RingLift.move_voltage(-12000);
+		} else if (IntakeInputState == 5) {
+      ringInPosition = false;
+      // if (currentRingColor == 0) {
+        
+
+        while (!ringInPosition) {
+          // RingLift.move_voltage(6000);
+          if (checkRingColor() == 1 || checkRingColor() == 2) {
+              // RingLift.move_relative(3000, 600);
+              // pros::delay(200);
+              ringInPosition = true;
+          } else {
+            Intake.move_voltage(12000);
+            RingLift.move_voltage(12000);
+          }
+        }
+        IntakeInputState = 0;
+        // Intake.move_voltage(0);
+        // RingLift.move_voltage(0);
+    }
+    lastProximity = currentProximity;
+		pros::delay(20);
+		// pros::lcd::clear();
+	}
 }
 
 void IntakeControl() {
@@ -305,9 +406,35 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
+    {"goal side center ring grab auto", []{pros::Task liftControlTask([]{
+      while (true) {
+          liftControl();
+          // ez::screen_print(std::to_string(LadyBrownRotationSensor.get_position()), 1);
+          pros::delay(10);
+          // ez::screen_print("", 1);
+      }
+
+      });
+      pros::Task intakeControlTask([]{
+        while (true) {
+            IntakeControlTaskFunction();
+            // ez::screen_print(std::to_string(LadyBrownRotationSensor.get_position()), 1);
+            pros::delay(10);
+            // ez::screen_print("", 1);
+        }
+        
+        }
+      );
+      od_new_red_right_center_ring_grab();
+      }},
+    {"odom right red center grab", od_red_right_center_ring_grab_with_alliance_stake},
+    {"odom test", drive_example},
+    
+    {"awp blue left center ring grab", blue_left_center_ring_grab_awp},
     {"awp red right center ring grab", red_right_center_ring_grab_awp}, 
+    
     {"blue left solo awp", blue_left_solo_awp},
-    {"awp blue left center ring grab", blue_left_center_ring_grab_awp}, 
+     
 
     
     
@@ -367,7 +494,7 @@ void initialize() {
   chassis.initialize();
   ez::as::initialize();
   // pros::Task IntakeControlTask(IntakeControl);
-  RingOptical.set_led_pwm(20);
+  RingOptical.set_led_pwm(50);
 
   
 
@@ -548,6 +675,13 @@ bool actuate_mogo_btn_pressed_last = false;
 bool actuate_intake_btn_pressed = false;
 bool actuate_intake_btn_pressed_last = false;
 
+bool lady_brown_next_btn_pressed = false;
+bool lady_brown_next_btn_pressed_last = false;
+
+bool lady_brown_shift_btn_pressed = false;
+bool lady_brown_shift_btn_pressed_last = false;
+
+
 void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
@@ -563,6 +697,8 @@ void opcontrol() {
         }
     });
 
+    pros::Task IntakeControlTask(IntakeControlTaskFunction);
+  
 
   while (true) {
     // Gives you some extras to make EZ-Template ezier
@@ -588,8 +724,30 @@ void opcontrol() {
                      controller.get_digital(LIMIT_DRIVE_SPEED_BUTTON));
 
     // Intake control
+    if (controller.get_digital(INTAKE_INTAKE_BUTTON)) {
+      if (controller.get_digital(SHIFT_BUTTON)) {
+        IntakeInputState = 5;
+      } else {
+        IntakeInputState = 1;
+      }
+		} else if (controller.get_digital(INTAKE_OUTTAKE_BUTTON)) {
+			IntakeInputState = 2;
+    // } else if  && controller.get_digital(INTAKE_INTAKE_BUTTON)) {
+    //   IntakeInputState = 5;
+		} else {
+			IntakeInputState = 0;
+		}
 
-    spin_intake_driver(controller.get_digital(INTAKE_INTAKE_BUTTON), controller.get_digital(INTAKE_OUTTAKE_BUTTON));
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
+			ColorSorterToggle += 1;
+			if (ColorSorterToggle > 2) {
+				ColorSorterToggle = 0;
+			}
+		}
+
+    
+
+    // spin_intake_driver(controller.get_digital(INTAKE_INTAKE_BUTTON), controller.get_digital(INTAKE_OUTTAKE_BUTTON));
 
     // spin_lady_brown_driver(controller.get_digital(LADY_BROWN_UP_BUTTON), controller.get_digital(LADY_BROWN_DOWN_BUTTON));
 
@@ -631,9 +789,45 @@ void opcontrol() {
 
     actuate_intake_btn_pressed_last = actuate_intake_btn_pressed;
 
+    // if (controller.get_digital(LADY_BROWN_NEXT_BUTTON)) {
+    //   lady_brown_next_btn_pressed = true;
+    // } else {
+    //   lady_brown_next_btn_pressed_last = false;
+    // }
+
+    // if (controller.get_digital(LADY_BROWN_SHIFT_BUTTON)) {
+    //   lady_brown_shift_btn_pressed = true;
+    // } else {
+    //   lady_brown_shift_btn_pressed_last = false;
+    // }
+
+    // if (lady_brown_shift_btn_pressed) {
+    //   if (lady_brown_next_btn_pressed) {
+    //     nextState(3);
+    //   } else {
+    //     nextState(0);
+    //   }
+    // } else if (lady_brown_next_btn_pressed) {
+    //   nextState();
+    // }
+
     if (controller.get_digital_new_press(LADY_BROWN_NEXT_BUTTON)) {
-      nextState();
-    }
+      if (controller.get_digital(SHIFT_BUTTON)) {
+        if (currState == 0) {
+          nextState(2);
+        } else if (currState == 2) {
+          nextState(3);
+          }
+        } else {
+        nextState();
+      } }
+
+
+    // if ((controller.get_digital(SHIFT_BUTTON)) && (controller.get_digital_new_press(LADY_BROWN_NEXT_BUTTON))) {
+      // nextState();
+    // } else if (controller.get_digital_new_press(LADY_BROWN_SHIFT_BUTTON)) {
+      
+    // } else 
 
 
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME

@@ -3,6 +3,8 @@
 #include "autons.hpp"
 void default_constants();
 
+void od_new_red_right_center_ring_grab();
+void od_red_right_center_ring_grab_with_alliance_stake();
 void safe_left();
 void skillz2();
 void left_elim();
