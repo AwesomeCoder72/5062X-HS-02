@@ -3,6 +3,10 @@
 
 int IntakeInputState = 0; 
 
+int ColorSorterToggle = 2; // 0 = off, 1 = throw out red, 2 = throw out blue
+
+double intakeThrottle = 1.0;
+
 
 void spin_intake_auto(bool intaking, int velocity, bool just_first_stage) {
   if (intaking) {

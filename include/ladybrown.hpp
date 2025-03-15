@@ -7,6 +7,8 @@ extern pros::Motor LadyBrownMech;
 extern void liftControl();
 extern pros::Rotation LadyBrownRotationSensor;
 
+extern bool toggleThrottleTargetSpeed;
+
 extern void nextState(int theNextState = -1);
 
 extern int currState;

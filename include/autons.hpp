@@ -3,6 +3,12 @@
 #include "autons.hpp"
 void default_constants();
 
+void state_skillz();
+void state_full_awp_red();
+void state_full_awp_blue();
+void state_elim_goal_red();
+
+
 void od_new_red_right_center_ring_grab();
 void od_red_right_center_ring_grab_with_alliance_stake();
 void safe_left();

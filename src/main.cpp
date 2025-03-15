@@ -1,5 +1,6 @@
 #include "main.h"
 #include <concepts>
+#include <functional>
 #include <string>
 #include "EZ-Template/util.hpp"
 #include "autons.hpp"
@@ -88,6 +89,8 @@ pros::MotorGroup drive_right({DRIVE_RB_PORT, -DRIVE_RT_PORT, DRIVE_RF_PORT});
 
 #define IMU_PORT 8
 
+// ez::Inertial imu(IMU_PORT);
+
 /*
 	SMART SENSOR PORT DEFINTIONS
 */
@@ -164,7 +167,7 @@ pros::Optical RingOptical(RING_OPTICAL_SENSOR_PORT);
 pros::adi::Pneumatics BackMogoActuator(BACK_MOGO_ACTUATOR_PORT, false);
 pros::adi::Pneumatics IntakeActuator(INTAKE_ACTUATOR_PORT, true);
 pros::adi::Pneumatics RightDoinkerActuator(RIGHT_DOINKER_ACTUATOR_PORT, false);
-pros::adi::Pneumatics LeftDoinkerActuator(LEFT_DOINKER_ACTUATOR_PORT, true);
+pros::adi::Pneumatics LeftDoinkerActuator(LEFT_DOINKER_ACTUATOR_PORT, false);
 
 // ez::Piston BackMogoActuator('a', false);
 
@@ -209,7 +212,7 @@ ez::Drive chassis(
 // 3 = intake only in, 
 // 4 = ring lift only in,
 // 5 = intake ring until optical sensor senses
-int ColorSorterToggle = 1; // 0 = off, 1 = throw out red, 2 = throw out blue
+
 bool ActivelyColorSorting = false;
 bool ringInPosition = false;
 
@@ -231,14 +234,15 @@ int checkRingColor() {
 	}
 }
 
+
 void IntakeControlTaskFunction () {
 	while (true) {
 		// pros::lcd::print(0, "Hue: %f", RingOptical.get_hue());
-    pros::lcd::print(0, "Proximity: %d`", RingOptical.get_proximity());
+    // pros::lcd::print(0, "Proximity: %d`", RingOptical.get_proximity());
     int currentRingColor = checkRingColor();
     currentProximity = RingOptical.get_proximity();
 		// pros::lcd::print(1, "Check Ring Color: %d", currentRingColor);
-    pros::lcd::print(1, "Intake Input State: %d", IntakeInputState);
+    // pros::lcd::print(1, "Intake Input State: %d", IntakeInputState);
 		if (ColorSorterToggle == 0) {
 			pros::lcd::print(4, "Color sorter off");
 		} else if (ColorSorterToggle == 1) {
@@ -273,12 +277,18 @@ void IntakeControlTaskFunction () {
 				ActivelyColorSorting = false;
 				pros::lcd::print(2, "");
 			} else {
-        Intake.move_voltage(12000);
-				RingLift.move_voltage(12000);
+        Intake.move_voltage(12000*intakeThrottle);
+				RingLift.move_voltage(12000*intakeThrottle);
 			}
 		} else if (IntakeInputState == 2) {
-      Intake.move_voltage(-12000);
-			RingLift.move_voltage(-12000);
+      Intake.move_voltage(-12000*intakeThrottle);
+			RingLift.move_voltage(-12000*intakeThrottle);
+    } else if (IntakeInputState == 3) {
+      Intake.move_voltage(12000*intakeThrottle);
+      RingLift.move_voltage(0);
+    } else if (IntakeInputState == 4) {
+      Intake.move_voltage(0);
+      RingLift.move_voltage(12000*intakeThrottle);
 		} else if (IntakeInputState == 5) {
       ringInPosition = false;
       // if (currentRingColor == 0) {
@@ -291,8 +301,8 @@ void IntakeControlTaskFunction () {
               // pros::delay(200);
               ringInPosition = true;
           } else {
-            Intake.move_voltage(12000);
-            RingLift.move_voltage(12000);
+            Intake.move_voltage(12000*intakeThrottle);
+            RingLift.move_voltage(12000*intakeThrottle);
           }
         }
         IntakeInputState = 0;
@@ -370,6 +380,27 @@ if (!pros::competition::is_connected()) {
 	}
 }
 
+void runAutonWithTasks() {
+  pros::Task liftControlTask([]{
+    while (true) {
+        liftControl();
+        // ez::screen_print(std::to_string(chassis.g), 1);
+        pros::delay(10);
+        ez::screen_print("", 1);
+
+    }
+
+    });
+    pros::Task intakeControlTask([]{
+      while (true) {
+          IntakeControlTaskFunction();
+          // ez::screen_print(std::to_string(LadyBrownRotationSensor.get_position()), 1);
+          pros::delay(10);
+          // ez::screen_print("", 1);
+      }
+      
+      }
+    );}
 
 
 void initialize() {
@@ -406,6 +437,33 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
+    {"state elim goal red", [] {runAutonWithTasks(); state_elim_goal_red();}},
+    {"state full awp red", [] {runAutonWithTasks(); state_full_awp_red();}},
+    {"state full awp blue", [] {runAutonWithTasks(); state_full_awp_blue();}},
+    
+    
+    
+    {"state skillz", []{pros::Task liftControlTask([]{
+      while (true) {
+          liftControl();
+          // ez::screen_print(std::to_string(LadyBrownRotationSensor.get_position()), 1);
+          pros::delay(10);
+          // ez::screen_print("", 1);
+      }
+
+      });
+      pros::Task intakeControlTask([]{
+        while (true) {
+            IntakeControlTaskFunction();
+            // ez::screen_print(std::to_string(LadyBrownRotationSensor.get_position()), 1);
+            pros::delay(10);
+            // ez::screen_print("", 1);
+        }
+        
+        }
+      );
+      state_skillz();
+      }},
     {"goal side center ring grab auto", []{pros::Task liftControlTask([]{
       while (true) {
           liftControl();
@@ -814,11 +872,20 @@ void opcontrol() {
     if (controller.get_digital_new_press(LADY_BROWN_NEXT_BUTTON)) {
       if (controller.get_digital(SHIFT_BUTTON)) {
         if (currState == 0) {
+          toggleThrottleTargetSpeed = false;
+          nextState(2);
+          if (IntakeActuator.is_extended()) {
+            actuate_intake(true);
+          }
+        } else if (currState == 1) {
+          toggleThrottleTargetSpeed = true;
           nextState(2);
         } else if (currState == 2) {
+          toggleThrottleTargetSpeed = false;
           nextState(3);
           }
         } else {
+         toggleThrottleTargetSpeed = false;
         nextState();
       } }
 

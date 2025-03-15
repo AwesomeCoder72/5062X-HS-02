@@ -12,7 +12,7 @@ void actuate_back_mogo(bool out_value) {
 bool intake_actuated_value = false;
 
 void actuate_intake(bool down_value) {
-  IntakeActuator.set_value(down_value);
+  IntakeActuator.set_value(!down_value);
   intake_actuated_value = down_value;
 }
 
