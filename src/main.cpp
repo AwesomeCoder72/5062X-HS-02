@@ -1,6 +1,7 @@
 #include "main.h"
 #include <concepts>
 #include <functional>
+#include <memory>
 #include <string>
 #include "EZ-Template/util.hpp"
 #include "autons.hpp"
@@ -152,7 +153,7 @@ pros::Controller controller (pros::E_CONTROLLER_MASTER);
 */
 
 pros::Motor Intake(-INTAKE_MOTOR_PORT);
-pros::Motor RingLift(-RING_LIFT_MOTOR_PORT);
+pros::Motor RingLift(RING_LIFT_MOTOR_PORT);
 
 /*
 	SENSOR INITIALIZATIONS
@@ -212,6 +213,7 @@ ez::Drive chassis(
 // 3 = intake only in, 
 // 4 = ring lift only in,
 // 5 = intake ring until optical sensor senses
+// 6 = ring lift only out
 
 bool ActivelyColorSorting = false;
 bool ringInPosition = false;
@@ -235,7 +237,9 @@ int checkRingColor() {
 }
 
 
+
 void IntakeControlTaskFunction () {
+  intakeThrottle = defaultIntakeThrottle;
 	while (true) {
 		// pros::lcd::print(0, "Hue: %f", RingOptical.get_hue());
     // pros::lcd::print(0, "Proximity: %d`", RingOptical.get_proximity());
@@ -294,7 +298,7 @@ void IntakeControlTaskFunction () {
       // if (currentRingColor == 0) {
         
 
-        while (!ringInPosition) {
+        while ((!ringInPosition) && IntakeInputState == 5) {
           // RingLift.move_voltage(6000);
           if (checkRingColor() == 1 || checkRingColor() == 2) {
               // RingLift.move_relative(3000, 600);
@@ -308,6 +312,9 @@ void IntakeControlTaskFunction () {
         IntakeInputState = 0;
         // Intake.move_voltage(0);
         // RingLift.move_voltage(0);
+    } else if (IntakeInputState == 6) {
+      Intake.move_voltage(0);
+      RingLift.move_voltage(-12000*intakeThrottle);
     }
     lastProximity = currentProximity;
 		pros::delay(20);
@@ -329,11 +336,11 @@ void IntakeControl() {
 			// if (!(intake_sees_ring_position - 500 > RingLift.get_position())) {
 			// 	RingLift.move_velocity(-400);
 			// }}
-		if (valueWithinRange(RingOptical.get_hue(), 10, 10) && RingOptical.get_proximity() > 220) {
+		if (valueWithinRange(RingOptical.get_hue(), 10, 15) && RingOptical.get_proximity() > 220) {
 			intake_sees_ring = 1;
 			// controller.set_text(0, 0, "Ring Detected");
 
-    } else if (valueWithinRange(RingOptical.get_hue(), 200, 20) && RingOptical.get_proximity() > 220) {
+    } else if (valueWithinRange(RingOptical.get_hue(), 200, 25) && RingOptical.get_proximity() > 220) {
 			intake_sees_ring = 2; 
 		} else {
 			intake_sees_ring = 0;
@@ -437,12 +444,11 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
+    {"blue ring six ring new", [] {runAutonWithTasks(); blue_ring_six_ring_new();}},
+    {"blue ring six ring", [] {runAutonWithTasks(); blue_ring_six_ring();}},
+    {"no final ring state elim goal red with center ring", [] {runAutonWithTasks(); state_elim_goal_red_with_center_ring_no_final_ring();}},
+    {"state elim goal red with center ring", [] {runAutonWithTasks(); state_elim_goal_red_with_center_ring();}},
     {"state elim goal red", [] {runAutonWithTasks(); state_elim_goal_red();}},
-    {"state full awp red", [] {runAutonWithTasks(); state_full_awp_red();}},
-    {"state full awp blue", [] {runAutonWithTasks(); state_full_awp_blue();}},
-    
-    
-    
     {"state skillz", []{pros::Task liftControlTask([]{
       while (true) {
           liftControl();
@@ -463,7 +469,17 @@ void initialize() {
         }
       );
       state_skillz();
-      }},
+      }},{"state_center_grab_goal_blue", [] {runAutonWithTasks(); state_center_grab_goal_blue();}},
+    {"state_center_grab_goal_red", [] {runAutonWithTasks(); state_center_grab_goal_red();}},
+    {"state red goal no alliance", [] {runAutonWithTasks(); state_elim_goal_red_no_alliance_stake();}},
+    
+      {"state elim goal red", [] {runAutonWithTasks(); state_elim_goal_red();}},
+    {"state full awp red", [] {runAutonWithTasks(); state_full_awp_red();}},
+    {"state full awp blue", [] {runAutonWithTasks(); state_full_awp_blue();}},
+    
+    
+    
+    
     {"goal side center ring grab auto", []{pros::Task liftControlTask([]{
       while (true) {
           liftControl();
@@ -870,6 +886,14 @@ void opcontrol() {
     // }
 
     if (controller.get_digital_new_press(LADY_BROWN_NEXT_BUTTON)) {
+      if (currState == 1) {
+        if (controller.get_digital(INTAKE_INTAKE_BUTTON)) {
+          nextState(10);
+
+
+
+        }
+      }
       if (controller.get_digital(SHIFT_BUTTON)) {
         if (currState == 0) {
           toggleThrottleTargetSpeed = false;

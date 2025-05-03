@@ -7,6 +7,13 @@ void state_skillz();
 void state_full_awp_red();
 void state_full_awp_blue();
 void state_elim_goal_red();
+void state_elim_goal_red_with_center_ring();
+void state_elim_goal_red_with_center_ring_no_final_ring();
+void blue_ring_six_ring();
+void blue_ring_six_ring_new();
+void state_elim_goal_red_no_alliance_stake();
+void state_center_grab_goal_red();
+void state_center_grab_goal_blue();
 
 
 void od_new_red_right_center_ring_grab();

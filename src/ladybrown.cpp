@@ -1,6 +1,8 @@
 #include "ladybrown.hpp"
 #include <cstdlib>
+#include "intake.hpp"
 #include "main.h"
+#include "pros/rtos.hpp"
 
 void spin_lady_brown_driver(int ladyBrownUpButtonValue, int ladyBrownDownButtonValue) {
 
@@ -16,25 +18,81 @@ void spin_lady_brown_driver(int ladyBrownUpButtonValue, int ladyBrownDownButtonV
 
 bool toggleThrottleTargetSpeed = false;
 
-const int numStates = 6;
+const int numStates = 8;
 //make sure these are in centidegrees (1 degree = 100 centidegrees)
 // int states[numStates] = {14250, 16100, 23000, 27750};
-int states[numStates] = {0, 37800, 53500, 59000, 38300, 51800};
+int states[numStates] = {0, 37800, 53500, 59000, 38300, 51800, 50000, 40000};
 int currState = 0;
 int ladyBrownTarget = states[0];
+
+double kD = 0.001; // 0.02; 
+
+
+void score2macro() {
+  IntakeInputState = 6;
+          pros::delay(100);
+          nextState(6);
+          IntakeInputState = 0;
+
+          pros::delay(50);
+
+          IntakeInputState = 4;
+
+          pros::delay(500);
+
+          IntakeInputState = 0;
+
+          // pros::delay(150);
+          nextState(1);
+
+          // pros::delay(100);
+          toggleThrottleTargetSpeed = true;
+          kD = 0.0035;
+
+          pros::delay(550);
+
+          toggleThrottleTargetSpeed = false;
+
+          kD = 0.001;
+
+
+          IntakeInputState = 4;
+          pros::delay(250);
+
+          // IntakeInputState = 0;
+          // pros::delay(30);
+          // IntakeInputState = 4;
+          // pros::delay(30);
+
+          // IntakeInputState = 6;
+          // pros::delay(100);
+          // pros::delay(200);
+
+          nextState(6);
+          
+
+          IntakeInputState = 0;
+
+          pros::delay(500);
+
+          // pros::delay(1000);
+}
 
 void nextState(int theNextState) {
   if (theNextState == -1) {
     currState += 1;
-    if (currState >= (numStates - 3)) {
+    if (currState >= (numStates - 5)) {
         currState = 0;
     }
     ladyBrownTarget = states[currState];
+  } else if (theNextState == 10) {
+    score2macro();
   } else {
     ladyBrownTarget = states[theNextState];
     currState=theNextState;
   }
 }
+
 
 double last_error = 0;
 
@@ -70,9 +128,11 @@ double throttleTargetSpeed(double inputVelocity, double throttlePercentage) {
 
 double velocity = 0;
 
+
+
 void liftControl() {
     double kP = 0.02;  // testing value = 0.007// 0.02; // 0.024;
-    double kD = 0.001; // 0.02; 
+    kD =kD;
     double error =  correct360Error(ladyBrownTarget,  LadyBrownRotationSensor.get_position(), currState);//target-LadyBrownRotationSensor.get_position();
     
     double derivative = (error-last_error);
@@ -86,8 +146,8 @@ void liftControl() {
 
     // }
 
-    // string screen_text = std::to_string(LadyBrownRotationSensor.get_position());
-    string screen_text = std::to_string(currState);
+    string screen_text = std::to_string(LadyBrownRotationSensor.get_position());
+    // string screen_text = std::to_string(currState);
     ez::screen_print(screen_text, 6);
 
     screen_text = std::to_string(error);
