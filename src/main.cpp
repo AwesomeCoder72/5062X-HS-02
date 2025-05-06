@@ -444,6 +444,15 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
+    {"red goal safe alliance and stack", [] {runAutonWithTasks(); red_goal_safe_alliance_and_stack();}},
+    {"blue ring safe alliance and stack", [] {runAutonWithTasks(); blue_ring_safe_alliance_and_stack();}},
+    {"red ring safe alliance and stack", [] {runAutonWithTasks(); red_ring_safe_alliance_and_stack();}},
+    {"blue goal safe alliance and stack", [] {runAutonWithTasks(); blue_goal_safe_alliance_and_stack();}},
+    {"blue goal safe no stack", [] {runAutonWithTasks(); blue_goal_safe_no_stack();}},
+    {"red ring safe no stack", [] {runAutonWithTasks(); red_ring_safe_no_stack();}},
+    {"red goal safe no stack", [] {runAutonWithTasks(); red_goal_safe_no_stack();}},
+    {"blue ring safe no stack", [] {runAutonWithTasks(); blue_ring_safe_no_stack();}},
+    {"red ring six ring new", [] {runAutonWithTasks(); red_ring_six_ring_new();}},
     {"blue ring six ring new", [] {runAutonWithTasks(); blue_ring_six_ring_new();}},
     {"blue ring six ring", [] {runAutonWithTasks(); blue_ring_six_ring();}},
     {"no final ring state elim goal red with center ring", [] {runAutonWithTasks(); state_elim_goal_red_with_center_ring_no_final_ring();}},

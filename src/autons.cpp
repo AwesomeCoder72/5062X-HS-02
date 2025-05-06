@@ -1795,6 +1795,776 @@ void state_elim_goal_red_with_center_ring() {
 
   }
 
+  void red_ring_six_ring_new() {
+    
+    chassis.odom_xyt_set(-11.8_in, -55_in, -237.25_deg);
+    
+    chassis.pid_turn_exit_condition_set(80_ms, 3.5_deg, 150_ms, 8.5_deg, 500_ms, 500_ms);
+    
+    ColorSorterToggle = 2; // 1 = throw out red, 2 = throw out blue
+    
+    chassis.slew_odom_reenable(true);
+  
+    // pros::delay(1000);
+    
+    chassis.pid_odom_set(5.55_in, 80);
+    chassis.pid_wait();
+    
+    
+    nextState(2);
+    pros::delay(500);
+    nextState(0);
+    
+    chassis.pid_odom_set(-9_in, 100);
+    chassis.pid_wait();
+    
+    chassis.pid_turn_constants_set(3.1, 0.05, 25.0, 15.0);     // Turn in place constants
+    
+    
+    // chassis.pid_turn_set(-90, 80, true);
+    // chassis.pid_wait();
+    
+    chassis.pid_turn_set(155, 90, true);
+    chassis.pid_wait();
+  
+    chassis.pid_turn_constants_set(2.9, 0.05, 24.0, 15.0);     // Turn in place constants
+  
+    // chassis.pid_odom_set(4_in, 85);
+    // chassis.pid_wait();
+  
+  
+  
+    // chassis.pid_odom_set(11, 80, true);
+    // chassis.pid_wait_until(4);
+    // IntakeInputState = 5;
+  
+    // chassis.pid_wait_until(9);
+  
+    // actuate_intake(true);
+  
+  
+    // chassis.pid_wait();
+  
+  
+    // pros::delay(125);
+  
+    // chassis.pid_odom_set(-6, 70, true);
+    // chassis.pid_wait();
+
+    // chassis.pid_turn_set(-150, 80, true);
+    // chassis.pid_wait();
+  
+    // chassis.pid_turn_constants_set(2.9, 0.05, 24.0, 15.0);     // Turn in place constants
+    
+    
+    chassis.pid_odom_set(-19_in, 70, true);
+    chassis.pid_wait_quick_chain();
+    chassis.pid_odom_set(-12_in, 45);
+    
+    chassis.pid_wait_until(-7_in);
+    
+    actuate_back_mogo(true);
+    
+    chassis.pid_wait();
+  
+    IntakeInputState = 4;
+    
+    chassis.pid_turn_set(45, TURN_SPEED);
+    chassis.pid_wait();
+    
+    chassis.pid_drive_set(15.75, 90, true);
+    actuate_intake(false);
+    IntakeInputState = 0;
+    chassis.pid_wait_until(6);
+    
+    // chassis.pid_wait_until(3);
+    
+    
+    chassis.pid_wait();
+    actuate_left_doinker(true);
+    
+    pros::delay(300);
+
+    // chassis.pid_swing_set(ez::LEFT_SWING, -40_deg, 60);
+    // chassis.pid_wait();
+    
+    chassis.pid_drive_exit_condition_set(90_ms, 4_in, 250_ms, 7_in, 250_ms, 250_ms);
+    
+    chassis.pid_odom_set(-13, 110, true);
+    actuate_intake(true);
+    // chassis.pid_wait_until(-20);
+    
+    chassis.pid_wait();
+
+
+
+    chassis.pid_turn_set(-70, 80, true);
+
+
+    chassis.pid_wait_until(60);
+    actuate_left_doinker(false);
+    // actuate_left_doinker(false);
+    chassis.pid_wait();
+
+    pros::delay(200);
+
+    chassis.pid_turn_set(-95, 100);
+    chassis.pid_wait();
+
+    IntakeInputState = 1;
+
+    chassis.pid_odom_set(26, 90);
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(-120, 80, true);
+    chassis.pid_wait();
+
+    chassis.pid_odom_set(-20.5, 90);
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(-45, 80, true);
+    chassis.pid_wait();
+
+    chassis.pid_odom_set(2, 90);
+    chassis.pid_wait();
+
+    chassis.pid_swing_set(ez::RIGHT_SWING, -90, 65);
+    chassis.pid_wait();
+
+    chassis.pid_odom_set(14, 80);
+    chassis.pid_wait();
+
+    chassis.pid_swing_set(ez::RIGHT_SWING, -50, 70);
+    chassis.pid_wait();
+
+    chassis.pid_odom_set(-42, 110);
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(102, 100, true);
+    actuate_intake(false);
+    chassis.pid_wait();
+
+    chassis.pid_odom_set(16, 80);
+    // chassis.pid_wait_until(5);
+    // actuate_intake(true);
+    chassis.pid_wait_quick_chain();
+
+    // chassis.pid_odom_set(-3, 90);
+    // chassis.pid_wait();
+
+    chassis.pid_odom_set(39, 110);
+    actuate_right_doinker(true);
+    chassis.pid_wait();
+
+
+    // chassis.pid_swing_set(ez::LEFT_SWING, 90, 70);
+    // chassis.pid_wait();
+
+    // chassis.pid_odom_set(8, 80);
+    // chassis.pid_wait();
+
+    // chassis.pid_swing_set(ez::LEFT_SWING, 45, 70);
+    // chassis.pid_wait();
+
+    // chassis.pid_turn_set(135, 80);
+    // chassis.pid_wait();
+
+    // chassis.pid_odom_set(16, 80);
+    // chassis.pid_wait();
+
+
+
+
+
+
+  }
+
+  void red_ring_safe_no_stack() {
+    chassis.odom_xyt_set(-11.8_in, -55_in, -237.25_deg);
+    
+    chassis.pid_turn_exit_condition_set(80_ms, 3.5_deg, 150_ms, 8.5_deg, 500_ms, 500_ms);
+    
+    ColorSorterToggle = 2; // 1 = throw out red, 2 = throw out blue
+    
+    chassis.slew_odom_reenable(true);
+  
+    // pros::delay(1000);
+    
+    chassis.pid_odom_set(-15_in, 85);
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(180, 80, true);
+    chassis.pid_wait();
+
+    // chassis.pid_turn_constants_set(2.9, 0.05, 24.0, 15.0);     // Turn in place constants
+
+
+    chassis.pid_odom_set(-15_in, 70, true);
+    chassis.pid_wait_quick_chain();
+    chassis.pid_odom_set(-10_in, 45);
+
+    chassis.pid_wait_until(-7_in);
+    
+    actuate_back_mogo(true);
+
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(-105, 80);
+    chassis.pid_wait();
+
+    actuate_intake(true);
+
+    IntakeInputState = 1;
+
+    chassis.pid_odom_set(26, 75, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(65, 80);
+    chassis.pid_wait();
+
+    chassis.pid_odom_set(38, 80);
+    // chassis.pid_wait_until(12);
+    // nextState(3);
+    chassis.pid_wait();
+
+
+  }
+
+  void blue_goal_safe_no_stack() {
+    chassis.odom_xyt_set(-11.8_in, -55_in, -237.25_deg);
+    
+    chassis.pid_turn_exit_condition_set(80_ms, 3.5_deg, 150_ms, 8.5_deg, 500_ms, 500_ms);
+    
+    ColorSorterToggle = 1; // 1 = throw out red, 2 = throw out blue
+    
+    chassis.slew_odom_reenable(true);
+  
+    // pros::delay(1000);
+    
+    chassis.pid_odom_set(-15_in, 85);
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(180, 80, true);
+    chassis.pid_wait();
+
+    // chassis.pid_turn_constants_set(2.9, 0.05, 24.0, 15.0);     // Turn in place constants
+
+
+    chassis.pid_odom_set(-15_in, 70, true);
+    chassis.pid_wait_quick_chain();
+    chassis.pid_odom_set(-10_in, 45);
+
+    chassis.pid_wait_until(-7_in);
+    
+    actuate_back_mogo(true);
+
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(-105, 80);
+    chassis.pid_wait();
+
+    actuate_intake(true);
+
+    IntakeInputState = 1;
+
+    chassis.pid_odom_set(26, 75, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(65, 80);
+    chassis.pid_wait();
+
+    chassis.pid_odom_set(38, 80);
+    // chassis.pid_wait_until(12);
+    // nextState(3);
+    chassis.pid_wait();
+
+
+  }
+
+  void red_goal_safe_no_stack() {
+    chassis.odom_xyt_set(11.8_in, -55_in, 237.25_deg);
+    
+    chassis.pid_turn_exit_condition_set(80_ms, 3.5_deg, 150_ms, 8.5_deg, 500_ms, 500_ms);
+    
+    ColorSorterToggle = 2; // 1 = throw out red, 2 = throw out blue
+    
+    chassis.slew_odom_reenable(true);
+  
+    // pros::delay(1000);
+    
+    chassis.pid_odom_set(-15_in, 85);
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(180, 80, true);
+    chassis.pid_wait();
+
+    // chassis.pid_turn_constants_set(2.9, 0.05, 24.0, 15.0);     // Turn in place constants
+
+
+    chassis.pid_odom_set(-15_in, 70, true);
+    chassis.pid_wait_quick_chain();
+    chassis.pid_odom_set(-10_in, 45);
+
+    chassis.pid_wait_until(-7_in);
+    
+    actuate_back_mogo(true);
+
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(105, 80);
+    chassis.pid_wait();
+
+    actuate_intake(true);
+
+    IntakeInputState = 1;
+
+    chassis.pid_odom_set(26, 75, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(-65, 80);
+    chassis.pid_wait();
+
+    chassis.pid_odom_set(38, 80);
+    // chassis.pid_wait_until(12);
+    // nextState(3);
+    chassis.pid_wait();
+
+
+  }
+
+  void blue_ring_safe_no_stack() {
+    chassis.odom_xyt_set(11.8_in, -55_in, 237.25_deg);
+    
+    chassis.pid_turn_exit_condition_set(80_ms, 3.5_deg, 150_ms, 8.5_deg, 500_ms, 500_ms);
+    
+    ColorSorterToggle = 1; // 1 = throw out red, 2 = throw out blue
+    
+    chassis.slew_odom_reenable(true);
+  
+    // pros::delay(1000);
+    
+    chassis.pid_odom_set(-15_in, 85);
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(180, 80, true);
+    chassis.pid_wait();
+
+    // chassis.pid_turn_constants_set(2.9, 0.05, 24.0, 15.0);     // Turn in place constants
+
+
+    chassis.pid_odom_set(-15_in, 70, true);
+    chassis.pid_wait_quick_chain();
+    chassis.pid_odom_set(-10_in, 45);
+
+    chassis.pid_wait_until(-7_in);
+    
+    actuate_back_mogo(true);
+
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(105, 80);
+    chassis.pid_wait();
+
+    actuate_intake(true);
+
+    IntakeInputState = 1;
+
+    chassis.pid_odom_set(26, 75, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(-65, 80);
+    chassis.pid_wait();
+
+    chassis.pid_odom_set(38, 80);
+    // chassis.pid_wait_until(12);
+    // nextState(3);
+    chassis.pid_wait();
+
+
+  }
+
+
+  
+void blue_goal_safe_alliance_and_stack() {
+  chassis.odom_xyt_set(-11.8_in, -55_in, -237.25_deg);
+    
+    chassis.pid_turn_exit_condition_set(80_ms, 3.5_deg, 150_ms, 8.5_deg, 500_ms, 500_ms);
+    
+    ColorSorterToggle = 1; // 1 = throw out red, 2 = throw out blue
+    
+    chassis.slew_odom_reenable(true);
+  
+    // pros::delay(1000);
+    
+    chassis.pid_odom_set(5.55_in, 80);
+    chassis.pid_wait();
+    
+    
+    nextState(2);
+    pros::delay(500);
+    nextState(0);
+    
+    chassis.pid_odom_set(-9_in, 100);
+    chassis.pid_wait();
+    
+    chassis.pid_turn_constants_set(3.1, 0.05, 25.0, 15.0);     // Turn in place constants
+    
+    
+    // chassis.pid_turn_set(-90, 80, true);
+    // chassis.pid_wait();
+    
+    chassis.pid_turn_set(62.5, 90, true);
+    chassis.pid_wait();
+  
+    chassis.pid_turn_constants_set(2.9, 0.05, 24.0, 15.0);     // Turn in place constants
+  
+    // chassis.pid_odom_set(4_in, 85);
+    // chassis.pid_wait();
+  
+  
+  
+    chassis.pid_odom_set(11, 80, true);
+    chassis.pid_wait_until(4);
+    IntakeInputState = 5;
+  
+    chassis.pid_wait_until(9);
+  
+    actuate_intake(true);
+  
+  
+    chassis.pid_wait();
+  
+  
+    pros::delay(125);
+  
+    chassis.pid_odom_set(-6, 70, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_constants_set(3.1, 0.05, 25.0, 15.0);     // Turn in place constants
+    
+    // chassis.pid_turn_set(-150, 80, true);
+    // chassis.pid_wait();
+    
+    chassis.pid_turn_set(150, 80, true);
+    chassis.pid_wait();
+  
+    chassis.pid_turn_constants_set(2.9, 0.05, 24.0, 15.0);     // Turn in place constants
+    
+    
+    chassis.pid_odom_set(-19_in, 70, true);
+    chassis.pid_wait_quick_chain();
+    chassis.pid_odom_set(-8_in, 45);
+    
+    chassis.pid_wait_until(-4_in);
+    
+    actuate_back_mogo(true);
+    
+    chassis.pid_wait();
+
+  chassis.pid_turn_set(-85, 80);
+  chassis.pid_wait();
+
+  IntakeInputState = 1;
+
+    chassis.pid_odom_set(26, 75, true);
+    chassis.pid_wait();
+
+    pros::delay(500);
+
+    chassis.pid_turn_set(70, 80);
+    chassis.pid_wait();
+
+    chassis.pid_odom_set(35, 70);
+    // chassis.pid_wait_until(12);
+    // nextState(3);
+    chassis.pid_wait();
+}
+
+void red_ring_safe_alliance_and_stack() {
+  chassis.odom_xyt_set(-11.8_in, -55_in, -237.25_deg);
+    
+    chassis.pid_turn_exit_condition_set(80_ms, 3.5_deg, 150_ms, 8.5_deg, 500_ms, 500_ms);
+    
+    ColorSorterToggle = 2; // 1 = throw out red, 2 = throw out blue
+    
+    chassis.slew_odom_reenable(true);
+  
+    // pros::delay(1000);
+    
+    chassis.pid_odom_set(5.55_in, 80);
+    chassis.pid_wait();
+    
+    
+    nextState(2);
+    pros::delay(500);
+    nextState(0);
+    
+    chassis.pid_odom_set(-9_in, 100);
+    chassis.pid_wait();
+    
+    chassis.pid_turn_constants_set(3.1, 0.05, 25.0, 15.0);     // Turn in place constants
+    
+    
+    // chassis.pid_turn_set(-90, 80, true);
+    // chassis.pid_wait();
+    
+    chassis.pid_turn_set(62.5, 90, true);
+    chassis.pid_wait();
+  
+    chassis.pid_turn_constants_set(2.9, 0.05, 24.0, 15.0);     // Turn in place constants
+  
+    // chassis.pid_odom_set(4_in, 85);
+    // chassis.pid_wait();
+  
+  
+  
+    chassis.pid_odom_set(11, 80, true);
+    chassis.pid_wait_until(4);
+    IntakeInputState = 5;
+  
+    chassis.pid_wait_until(9);
+  
+    actuate_intake(true);
+  
+  
+    chassis.pid_wait();
+  
+  
+    pros::delay(125);
+  
+    chassis.pid_odom_set(-6, 70, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_constants_set(3.1, 0.05, 25.0, 15.0);     // Turn in place constants
+    
+    // chassis.pid_turn_set(-150, 80, true);
+    // chassis.pid_wait();
+    
+    chassis.pid_turn_set(150, 80, true);
+    chassis.pid_wait();
+  
+    chassis.pid_turn_constants_set(2.9, 0.05, 24.0, 15.0);     // Turn in place constants
+    
+    
+    chassis.pid_odom_set(-19_in, 70, true);
+    chassis.pid_wait_quick_chain();
+    chassis.pid_odom_set(-8_in, 45);
+    
+    chassis.pid_wait_until(-4_in);
+    
+    actuate_back_mogo(true);
+    
+    chassis.pid_wait();
+
+  chassis.pid_turn_set(-85, 80);
+  chassis.pid_wait();
+
+  IntakeInputState = 1;
+
+    chassis.pid_odom_set(26, 75, true);
+    chassis.pid_wait();
+
+    pros::delay(500);
+
+    chassis.pid_turn_set(70, 80);
+    chassis.pid_wait();
+
+    chassis.pid_odom_set(35, 70);
+    // chassis.pid_wait_until(12);
+    // nextState(3);
+    chassis.pid_wait();
+}
+
+void blue_ring_safe_alliance_and_stack() {
+  chassis.odom_xyt_set(11.8_in, -55_in, 237.25_deg);
+    
+    chassis.pid_turn_exit_condition_set(80_ms, 3.5_deg, 150_ms, 8.5_deg, 500_ms, 500_ms);
+    
+    ColorSorterToggle = 1; // 1 = throw out red, 2 = throw out blue
+    
+    chassis.slew_odom_reenable(true);
+  
+    // pros::delay(1000);
+    
+    chassis.pid_odom_set(5.55_in, 80);
+    chassis.pid_wait();
+    
+    
+    nextState(2);
+    pros::delay(500);
+    nextState(0);
+    
+    chassis.pid_odom_set(-9_in, 100);
+    chassis.pid_wait();
+    
+    chassis.pid_turn_constants_set(3.1, 0.05, 25.0, 15.0);     // Turn in place constants
+    
+    
+    // chassis.pid_turn_set(-90, 80, true);
+    // chassis.pid_wait();
+    
+    chassis.pid_turn_set(-62.5, 90, true);
+    chassis.pid_wait();
+  
+    chassis.pid_turn_constants_set(2.9, 0.05, 24.0, 15.0);     // Turn in place constants
+  
+    // chassis.pid_odom_set(4_in, 85);
+    // chassis.pid_wait();
+  
+  
+  
+    chassis.pid_odom_set(11, 80, true);
+    chassis.pid_wait_until(4);
+    IntakeInputState = 5;
+  
+    chassis.pid_wait_until(9);
+  
+    actuate_intake(true);
+  
+  
+    chassis.pid_wait();
+  
+  
+    pros::delay(125);
+  
+    chassis.pid_odom_set(-6, 70, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_constants_set(3.1, 0.05, 25.0, 15.0);     // Turn in place constants
+    
+    // chassis.pid_turn_set(-150, 80, true);
+    // chassis.pid_wait();
+    
+    chassis.pid_turn_set(-150, 80, true);
+    chassis.pid_wait();
+  
+    chassis.pid_turn_constants_set(2.9, 0.05, 24.0, 15.0);     // Turn in place constants
+    
+    
+    chassis.pid_odom_set(-19_in, 70, true);
+    chassis.pid_wait_quick_chain();
+    chassis.pid_odom_set(-8_in, 45);
+    
+    chassis.pid_wait_until(-4_in);
+    
+    actuate_back_mogo(true);
+    
+    chassis.pid_wait();
+
+  chassis.pid_turn_set(85, 80);
+  chassis.pid_wait();
+
+  IntakeInputState = 1;
+
+    chassis.pid_odom_set(26, 75, true);
+    chassis.pid_wait();
+
+    pros::delay(500);
+
+    chassis.pid_turn_set(-70, 80);
+    chassis.pid_wait();
+
+    chassis.pid_odom_set(35, 70);
+    // chassis.pid_wait_until(12);
+    // nextState(3);
+    chassis.pid_wait();
+}
+
+void red_goal_safe_alliance_and_stack() {
+  chassis.odom_xyt_set(11.8_in, -55_in, 237.25_deg);
+    
+    chassis.pid_turn_exit_condition_set(80_ms, 3.5_deg, 150_ms, 8.5_deg, 500_ms, 500_ms);
+    
+    ColorSorterToggle = 2; // 1 = throw out red, 2 = throw out blue
+    
+    chassis.slew_odom_reenable(true);
+  
+    // pros::delay(1000);
+    
+    chassis.pid_odom_set(5.55_in, 80);
+    chassis.pid_wait();
+    
+    
+    nextState(2);
+    pros::delay(500);
+    nextState(0);
+    
+    chassis.pid_odom_set(-9_in, 100);
+    chassis.pid_wait();
+    
+    chassis.pid_turn_constants_set(3.1, 0.05, 25.0, 15.0);     // Turn in place constants
+    
+    
+    // chassis.pid_turn_set(-90, 80, true);
+    // chassis.pid_wait();
+    
+    chassis.pid_turn_set(-62.5, 90, true);
+    chassis.pid_wait();
+  
+    chassis.pid_turn_constants_set(2.9, 0.05, 24.0, 15.0);     // Turn in place constants
+  
+    // chassis.pid_odom_set(4_in, 85);
+    // chassis.pid_wait();
+  
+  
+  
+    chassis.pid_odom_set(11, 80, true);
+    chassis.pid_wait_until(4);
+    IntakeInputState = 5;
+  
+    chassis.pid_wait_until(9);
+  
+    actuate_intake(true);
+  
+  
+    chassis.pid_wait();
+  
+  
+    pros::delay(125);
+  
+    chassis.pid_odom_set(-6, 70, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_constants_set(3.1, 0.05, 25.0, 15.0);     // Turn in place constants
+    
+    // chassis.pid_turn_set(-150, 80, true);
+    // chassis.pid_wait();
+    
+    chassis.pid_turn_set(-150, 80, true);
+    chassis.pid_wait();
+  
+    chassis.pid_turn_constants_set(2.9, 0.05, 24.0, 15.0);     // Turn in place constants
+    
+    
+    chassis.pid_odom_set(-19_in, 70, true);
+    chassis.pid_wait_quick_chain();
+    chassis.pid_odom_set(-8_in, 45);
+    
+    chassis.pid_wait_until(-4_in);
+    
+    actuate_back_mogo(true);
+    
+    chassis.pid_wait();
+
+  chassis.pid_turn_set(85, 80);
+  chassis.pid_wait();
+
+  IntakeInputState = 1;
+
+    chassis.pid_odom_set(26, 75, true);
+    chassis.pid_wait();
+
+    pros::delay(500);
+
+    chassis.pid_turn_set(-70, 80);
+    chassis.pid_wait();
+
+    chassis.pid_odom_set(35, 70);
+    // chassis.pid_wait_until(12);
+    // nextState(3);
+    chassis.pid_wait();
+}
+
   void state_elim_goal_red_with_center_ring_no_final_ring() { 
   
     chassis.odom_xyt_set(11.8_in, -55_in, 237.25_deg);
@@ -1805,7 +2575,7 @@ void state_elim_goal_red_with_center_ring() {
     
     chassis.slew_odom_reenable(true);
   
-    pros::delay(1000);
+    // pros::delay(1000);
     
     chassis.pid_odom_set(5.55_in, 80);
     chassis.pid_wait();
