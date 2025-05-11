@@ -8,6 +8,9 @@ void state_full_awp_red();
 void state_full_awp_blue();
 void state_elim_goal_red();
 void state_elim_goal_red_with_center_ring();
+void state_elim_goal_blue_with_center_ring();
+void worlds_elim_goal_red_with_center_ring();
+
 void state_elim_goal_red_with_center_ring_no_final_ring();
 void blue_ring_six_ring();
 void red_ring_six_ring_new();
